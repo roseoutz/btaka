@@ -1,0 +1,17 @@
+server:
+  port: 10000
+
+spring:
+  data:
+    mongodb:
+      host: localhost
+      username: firefly
+      password: qkseltqnfdl
+      database: btaka
+      authentication-database: admin
+  jpa:
+    properties:
+      hibernate:
+        ogm:
+          datastore:
+            create_database=true
