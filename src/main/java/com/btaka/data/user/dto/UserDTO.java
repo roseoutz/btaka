@@ -9,13 +9,6 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserDTO {
 
-    public UserDTO(UserEntity entity) {
-        this.oid = entity.getOid();
-        this.userId = entity.getUserId();
-        this.password = entity.getPassword();
-        this.username = entity.getUsername();
-    }
-
     private String oid;
 
     private String userId;

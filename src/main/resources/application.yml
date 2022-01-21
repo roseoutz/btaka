@@ -1,6 +1,13 @@
 server:
   port: 10000
 
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb: trace
+
 spring:
   data:
     mongodb:
@@ -9,9 +16,3 @@ spring:
       password: qkseltqnfdl
       database: btaka
       authentication-database: admin
-  jpa:
-    properties:
-      hibernate:
-        ogm:
-          datastore:
-            create_database=true
