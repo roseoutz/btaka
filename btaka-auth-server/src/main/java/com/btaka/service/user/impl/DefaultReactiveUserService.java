@@ -4,6 +4,7 @@ import com.btaka.common.dto.SearchParam;
 import com.btaka.data.user.dto.UserDTO;
 import com.btaka.data.user.entity.UserEntity;
 import com.btaka.domain.user.UserMongoRepository;
+import com.btaka.dto.ResponseDTO;
 import com.btaka.service.user.UserService;
 import io.netty.util.internal.StringUtil;
 import org.modelmapper.ModelMapper;
@@ -38,25 +39,23 @@ public class DefaultReactiveUserService implements UserService {
     private ModelMapper modelMapper;
 
     @Override
-    public Mono<UserDTO> getUser(String oid) {
+    public Mono<ResponseDTO> getUser(String oid) {
         return userMongoRepository.findById(oid)
                 .flatMap(data -> Mono
-                        .just(convertUserInfo(data))
-                        .publishOn(Schedulers.boundedElastic())
+                        .just(new ResponseDTO(data))
                 );
     }
 
     @Override
-    public Mono<UserDTO> getUserByUserId(String userId) {
+    public Mono<ResponseDTO> getUserByUserId(String userId) {
         return userMongoRepository.findByUserId(userId)
                 .flatMap(data -> Mono
-                        .just(convertUserInfo(data))
-                        .publishOn(Schedulers.boundedElastic())
+                        .just(new ResponseDTO(data))
                 );
     }
 
     @Override
-    public Flux<UserDTO> searchUser(SearchParam searchParam) {
+    public Flux<ResponseDTO> searchUser(SearchParam searchParam) {
         return Flux.just(searchParam)
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMap(param -> {
@@ -67,14 +66,16 @@ public class DefaultReactiveUserService implements UserService {
                                     .forEach(entry -> searchQuery.addCriteria(Criteria.where(entry.getKey()).is(entry.getValue())));
 
                             return reactiveMongoTemplate.find(searchQuery, UserEntity.class, "user")
-                                    .map(this::convertUserInfo);
+                                    .flatMap(data -> Mono
+                                            .just(new ResponseDTO(data))
+                                    );
                         }
                 );
     }
 
     @Override
     @Transactional
-    public Mono<UserDTO> addUser(UserDTO userDto) {
+    public Mono<ResponseDTO> addUser(UserDTO userDto) {
         return Mono.just(userDto)
                 .publishOn(Schedulers.boundedElastic())
                 .map(userDTO -> {
@@ -85,14 +86,13 @@ public class DefaultReactiveUserService implements UserService {
                     return convertedEntity;
                 })
                 .flatMap(data -> Mono
-                        .just(convertUserInfo(data))
-                        .publishOn(Schedulers.boundedElastic())
+                        .just(new ResponseDTO(data))
                 );
     }
 
     @Override
     @Transactional
-    public Mono<UserDTO> updateUser(UserDTO userDTO) {
+    public Mono<ResponseDTO> updateUser(UserDTO userDTO) {
         return userMongoRepository.findById(userDTO.getOid())
                 .publishOn(Schedulers.boundedElastic())
                 .filter(Objects::nonNull)
@@ -109,19 +109,12 @@ public class DefaultReactiveUserService implements UserService {
                 })
                 .flatMap(entity -> userMongoRepository.save(entity))
                 .flatMap(data -> Mono
-                        .just(convertUserInfo(data))
-                        .publishOn(Schedulers.boundedElastic())
+                        .just(new ResponseDTO(data))
                 );
     }
 
     @Override
     public Mono<Void> deleteUser(String oid) {
         return userMongoRepository.deleteById(oid);
-    }
-
-    private UserDTO convertUserInfo(UserEntity userEntity) {
-        userEntity.setPassword(null);
-        userEntity.setOid(null);
-        return modelMapper.map(userEntity, UserDTO.class);
     }
 }
