@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "btaka.services.auth-service",
+      "type": "java.lang.String",
+      "description": "Description for btaka.services.auth-service."
+    }
+  ]
+}

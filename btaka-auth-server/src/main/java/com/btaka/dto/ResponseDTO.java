@@ -1,6 +1,5 @@
 package com.btaka.dto;
 
-import com.btaka.data.user.dto.UserDTO;
 import com.btaka.data.user.entity.UserEntity;
 import lombok.*;
 

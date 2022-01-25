@@ -20,7 +20,6 @@ repositories {
 
 dependencies {
     implementation 'org.modelmapper:modelmapper:2.4.5'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'

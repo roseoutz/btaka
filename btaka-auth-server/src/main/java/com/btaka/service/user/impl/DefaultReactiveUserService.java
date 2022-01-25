@@ -26,7 +26,7 @@ import java.util.UUID;
 @Service
 public class DefaultReactiveUserService implements UserService {
 
-    @Resource(name = "${bean.crypto.password.encoder:bcPasswordEncoder}")
+    /*@Resource(name = "${bean.crypto.password.encoder:bcPasswordEncoder}")
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -36,7 +36,21 @@ public class DefaultReactiveUserService implements UserService {
     private ReactiveMongoTemplate reactiveMongoTemplate;
 
     @Autowired
-    private ModelMapper modelMapper;
+    private ModelMapper modelMapper;*/
+
+    private final PasswordEncoder passwordEncoder;
+    private final UserMongoRepository userMongoRepository;
+    private final ReactiveMongoTemplate reactiveMongoTemplate;
+    private final ModelMapper modelMapper;
+
+    public DefaultReactiveUserService(PasswordEncoder passwordEncoder, UserMongoRepository userMongoRepository, ReactiveMongoTemplate reactiveMongoTemplate, ModelMapper modelMapper) {
+        this.passwordEncoder = passwordEncoder;
+        this.userMongoRepository = userMongoRepository;
+        this.reactiveMongoTemplate = reactiveMongoTemplate;
+        this.modelMapper = modelMapper;
+    }
+
+
 
     @Override
     public Mono<ResponseDTO> getUser(String oid) {
@@ -61,9 +75,7 @@ public class DefaultReactiveUserService implements UserService {
                 .flatMap(param -> {
                             Query searchQuery = new Query();
                             param.getParamMap()
-                                    .entrySet()
-                                    .stream()
-                                    .forEach(entry -> searchQuery.addCriteria(Criteria.where(entry.getKey()).is(entry.getValue())));
+                                    .forEach((key, value) -> searchQuery.addCriteria(Criteria.where(key).is(value)));
 
                             return reactiveMongoTemplate.find(searchQuery, UserEntity.class, "user")
                                     .flatMap(data -> Mono
