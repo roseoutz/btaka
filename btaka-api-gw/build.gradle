@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+}
+
+bootJar {
+    enabled(true)
+}
+
+jar {
+    enabled(false)
+}
+
+group = 'com.btaka'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

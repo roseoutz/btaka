@@ -1,0 +1,24 @@
+server:
+  port: 11000
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:12000/eureka
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: btaka-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: userService
+          uri: lb://BTAKA-USER-SERVICE
+          predicates:
+            - Path=/user/**
+          filters:
+            - RewritePath=/user/?(?<path>.*), /api/v1/user/$\{path}
