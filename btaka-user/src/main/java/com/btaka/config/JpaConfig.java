@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 
 @Configuration
 @EnableMongoAuditing
-// @EnableReactiveMongoRepositories
+@EnableReactiveMongoRepositories
 public class JpaConfig {
 
 }

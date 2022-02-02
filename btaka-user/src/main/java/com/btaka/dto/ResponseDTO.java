@@ -1,6 +1,6 @@
 package com.btaka.dto;
 
-import com.btaka.data.user.entity.UserEntity;
+import com.btaka.data.user.entity.UserInfoEntity;
 import lombok.*;
 
 @Builder
@@ -9,10 +9,10 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResponseDTO {
 
-    public ResponseDTO(UserEntity userEntity) {
-        this.oid = userEntity.getOid();
-        this.userId = userEntity.getUserId();
-        this.username = userEntity.getUsername();
+    public ResponseDTO(UserInfoEntity userInfoEntity) {
+        this.oid = userInfoEntity.getOid();
+        this.userId = userInfoEntity.getUserId();
+        this.username = userInfoEntity.getUsername();
         this.result = true;
     }
 

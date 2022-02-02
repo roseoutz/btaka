@@ -1,14 +1,11 @@
 package com.btaka.controller.api;
 
 import com.btaka.common.dto.SearchParam;
-import com.btaka.data.user.dto.UserDTO;
+import com.btaka.data.user.dto.UserInfoDTO;
 import com.btaka.service.user.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -20,7 +17,7 @@ public class UserApiController {
         this.userService = userService;
     }
 
-    @GetMapping("/get/by/id/{userId}")
+    @GetMapping("/get/id/{userId}")
     public Mono<ResponseEntity> getUserByUserId(@PathVariable("userId") String userId) {
         return userService.getUserByUserId(userId)
                 .flatMap(dto -> Mono.just(ResponseEntity.ok(dto)))
@@ -45,31 +42,23 @@ public class UserApiController {
                 .onErrorResume(ex -> Mono.just(ResponseEntity.badRequest().body(ex.getMessage())));
     }
 
-    @PostMapping("/flux/list")
-    public Flux<ResponseEntity> getUsersFlux(@RequestBody SearchParam searchParam) {
-        return userService.searchUser(searchParam)
-                .flatMap(list -> Flux.just(ResponseEntity.ok(list)))
-                .cast(ResponseEntity.class)
-                .onErrorResume(ex -> Mono.just(ResponseEntity.badRequest().body(ex.getMessage())));
-    }
-
-    @PostMapping("/add")
-    public Mono<ResponseEntity> addUser(@RequestBody UserDTO userDTO) {
-        return userService.addUser(userDTO)
+    @PostMapping("/user")
+    public Mono<ResponseEntity> addUser(@RequestBody UserInfoDTO userInfoDTO) {
+        return userService.addUser(userInfoDTO)
                 .flatMap(dto -> Mono.just(ResponseEntity.ok(dto)))
                 .cast(ResponseEntity.class)
                 .onErrorResume(ex -> Mono.just(ResponseEntity.badRequest().body(ex.getMessage())));
     }
 
-    @PostMapping("/update")
-    public Mono<ResponseEntity> updateUser(@RequestBody UserDTO userDTO) {
-        return userService.updateUser(userDTO)
+    @PutMapping("/user")
+    public Mono<ResponseEntity> updateUser(@RequestBody UserInfoDTO userInfoDTO) {
+        return userService.updateUser(userInfoDTO)
                 .flatMap(dto -> Mono.just(ResponseEntity.ok(dto)))
                 .cast(ResponseEntity.class)
                 .onErrorResume(ex -> Mono.just(ResponseEntity.badRequest().body(ex.getMessage())));
     }
 
-    @GetMapping("/delete/{oid}")
+    @DeleteMapping("/user/{oid}")
     public Mono<ResponseEntity> deleteUser(@PathVariable("oid") String oid) {
         return userService.deleteUser(oid)
                 .flatMap(res -> Mono.just(ResponseEntity.ok(res)))

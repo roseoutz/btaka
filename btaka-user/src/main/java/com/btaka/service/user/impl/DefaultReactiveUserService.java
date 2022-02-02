@@ -1,14 +1,12 @@
 package com.btaka.service.user.impl;
 
 import com.btaka.common.dto.SearchParam;
-import com.btaka.data.user.dto.UserDTO;
-import com.btaka.data.user.entity.UserEntity;
+import com.btaka.data.user.dto.UserInfoDTO;
+import com.btaka.data.user.entity.UserInfoEntity;
 import com.btaka.domain.user.UserMongoRepository;
 import com.btaka.dto.ResponseDTO;
 import com.btaka.service.user.UserService;
 import io.netty.util.internal.StringUtil;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -19,35 +17,18 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import javax.annotation.Resource;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
 public class DefaultReactiveUserService implements UserService {
 
-    /*@Resource(name = "${bean.crypto.password.encoder:bcPasswordEncoder}")
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserMongoRepository userMongoRepository;
-
-    @Autowired
-    private ReactiveMongoTemplate reactiveMongoTemplate;
-
-    @Autowired
-    private ModelMapper modelMapper;*/
-
-    private final PasswordEncoder passwordEncoder;
     private final UserMongoRepository userMongoRepository;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
-    private final ModelMapper modelMapper;
 
-    public DefaultReactiveUserService(PasswordEncoder passwordEncoder, UserMongoRepository userMongoRepository, ReactiveMongoTemplate reactiveMongoTemplate, ModelMapper modelMapper) {
-        this.passwordEncoder = passwordEncoder;
+    public DefaultReactiveUserService(UserMongoRepository userMongoRepository, ReactiveMongoTemplate reactiveMongoTemplate) {
         this.userMongoRepository = userMongoRepository;
         this.reactiveMongoTemplate = reactiveMongoTemplate;
-        this.modelMapper = modelMapper;
     }
 
 
@@ -77,7 +58,7 @@ public class DefaultReactiveUserService implements UserService {
                             param.getParamMap()
                                     .forEach((key, value) -> searchQuery.addCriteria(Criteria.where(key).is(value)));
 
-                            return reactiveMongoTemplate.find(searchQuery, UserEntity.class, "user")
+                            return reactiveMongoTemplate.find(searchQuery, UserInfoEntity.class, "user")
                                     .flatMap(data -> Mono
                                             .just(new ResponseDTO(data))
                                     );
@@ -87,14 +68,12 @@ public class DefaultReactiveUserService implements UserService {
 
     @Override
     @Transactional
-    public Mono<ResponseDTO> addUser(UserDTO userDto) {
-        return Mono.just(userDto)
+    public Mono<ResponseDTO> addUser(UserInfoDTO userInfoDto) {
+        return Mono.just(userInfoDto)
                 .publishOn(Schedulers.boundedElastic())
-                .map(userDTO -> {
-                    UserEntity convertedEntity = modelMapper.map(userDto, UserEntity.class);
+                .map(userInfoDTO -> {
+                    UserInfoEntity convertedEntity = new UserInfoEntity(userInfoDTO);
                     convertedEntity.setOid(UUID.randomUUID().toString());
-                    convertedEntity.setPassword(passwordEncoder.encode(userDto.getPassword()));
-
                     return convertedEntity;
                 })
                 .flatMap(data -> Mono
@@ -104,17 +83,13 @@ public class DefaultReactiveUserService implements UserService {
 
     @Override
     @Transactional
-    public Mono<ResponseDTO> updateUser(UserDTO userDTO) {
-        return userMongoRepository.findById(userDTO.getOid())
+    public Mono<ResponseDTO> updateUser(UserInfoDTO userInfoDTO) {
+        return userMongoRepository.findById(userInfoDTO.getOid())
                 .publishOn(Schedulers.boundedElastic())
                 .filter(Objects::nonNull)
                 .map(entity -> {
-                    if (!StringUtil.isNullOrEmpty(userDTO.getUsername())) {
-                        entity.setUsername(userDTO.getUsername());
-                    }
-
-                    if (!StringUtil.isNullOrEmpty(userDTO.getPassword())) {
-                        entity.setPassword(userDTO.getPassword());
+                    if (!StringUtil.isNullOrEmpty(userInfoDTO.getUsername())) {
+                        entity.setUsername(userInfoDTO.getUsername());
                     }
 
                     return entity;

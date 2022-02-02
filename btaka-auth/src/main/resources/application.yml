@@ -1,0 +1,36 @@
+server:
+  port: 14000
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb: trace
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://127.0.0.1:12000/eureka/
+  instance:
+    hostname: authService
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+spring:
+  application:
+    name: btaka-auth-service
+  redis:
+    host: localhost
+    port: 6379
+  data:
+    mongodb:
+      host: localhost
+      username: firefly
+      password: qkseltqnfdl
+      database: btaka_user
+      authentication-database: admin
+

@@ -2,6 +2,7 @@ rootProject.name = 'btaka-project'
 
 include 'btaka-api-gw'
 include 'btaka-eureka'
+include 'btaka-auth'
 include 'btaka-user'
 include 'btaka-item'
 include 'btaka-order'
