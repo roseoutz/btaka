@@ -1,4 +1,4 @@
-package com.btaka.domain.dto;
+package com.btaka.common.dto;
 
 import lombok.*;
 
@@ -6,15 +6,13 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class User {
 
     private String oid;
     @NonNull
     private String userId;
     @NonNull
     private String username;
-    @NonNull
-    private String password;
     @NonNull
     private String email;
     @NonNull
