@@ -1,5 +1,7 @@
 package com.btaka.security.filter;
 
+import com.btaka.jwt.JwtService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -9,13 +11,12 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter implements WebFilter {
 
+    private final JwtService jwtService;
     private final List<String> excludeUrl;
 
-    public JwtAuthenticationFilter(List<String> excludeUrl) {
-        this.excludeUrl = excludeUrl;
-    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {

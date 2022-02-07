@@ -1,24 +1,37 @@
 package com.btaka.config;
 
+import com.btaka.jwt.JwtService;
+import com.btaka.security.filter.JwtAuthenticationFilter;
 import com.btaka.security.service.UserInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebFluxSecurity
-public class OauthSecurityConfig {
+@RequiredArgsConstructor
+public class OauthSecurityConfig extends AuthorizationServerConfigurerAdapter {
 
     private final UserInfoService userInfoService;
 
-    public OauthSecurityConfig(UserInfoService userInfoService) {
-        this.userInfoService = userInfoService;
+    private final JwtService jwtService;
+
+    protected List<String> excludeUrl() {
+        return Arrays.asList("");
     }
 
     @Bean
@@ -27,14 +40,21 @@ public class OauthSecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity security) {
-        return security.authorizeExchange()
-                .anyExchange()
-                .authenticated()
-                .and()
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity security, ReactiveAuthenticationManager reactiveAuthenticationManager) {
+        return security
+                .exceptionHandling(exceptionHandlingSpec -> {
+                    exceptionHandlingSpec
+                            .authenticationEntryPoint(((exchange, ex) -> Mono.fromRunnable(() -> exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED))))
+                            .accessDeniedHandler((exchange, denied) -> Mono.fromRunnable(() -> exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN)));
+                })
+                .cors().disable()
                 .csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
+                .authenticationManager(reactiveAuthenticationManager)
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                .authorizeExchange(exchange -> exchange.anyExchange().authenticated())
+                .addFilterAt(new JwtAuthenticationFilter(jwtService, excludeUrl()), SecurityWebFiltersOrder.HTTP_BASIC)
                 .build();
     }
 
