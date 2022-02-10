@@ -3,6 +3,7 @@ package com.btaka.jwt.impl;
 import com.btaka.common.dto.User;
 import com.btaka.jwt.JwtService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +12,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service("defaultJwtService")
 public class DefaultJwtService implements JwtService {
@@ -53,16 +57,29 @@ public class DefaultJwtService implements JwtService {
     @Override
     public String generateToken(User user) {
 
-        Long expirationTimeLong = Long.parseLong(tokenMaxValidTime);
+        long expirationTimeLong = Long.parseLong(tokenMaxValidTime);
         final Date createdDate = new Date();
         final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
 
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .setSubject(user.getUserId())
+                .setHeader(Collections.singletonMap(Header.TYPE, Header.JWT_TYPE))
                 .setIssuedAt(createdDate)
                 .setExpiration(expirationDate)
+                .claim("userinfo", getUserClaim(user))
                 .signWith(key)
                 .compact();
+    }
+
+    private Map<String, String> getUserClaim(User user) {
+        Map<String, String> claimMap = new ConcurrentHashMap<>();
+
+        claimMap.put("username", user.getUsername());
+        claimMap.put("email", user.getEmail());
+        claimMap.put("mobile", user.getMobile());
+        claimMap.put("role", user.getRoles().name());
+
+        return claimMap;
     }
 
     @Override

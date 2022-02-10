@@ -2,7 +2,6 @@ package com.btaka.config;
 
 import com.btaka.jwt.JwtService;
 import com.btaka.security.filter.JwtAuthenticationFilter;
-import com.btaka.security.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,10 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -26,12 +24,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OauthSecurityConfig extends AuthorizationServerConfigurerAdapter {
 
-    private final UserInfoService userInfoService;
-
     private final JwtService jwtService;
 
+    private final ReactiveAuthenticationManager reactiveAuthenticationManager;
+
+    private final ServerSecurityContextRepository securityContextRepository;
+
     protected List<String> excludeUrl() {
-        return Arrays.asList("");
+        return List.of("");
     }
 
     @Bean
@@ -40,7 +40,7 @@ public class OauthSecurityConfig extends AuthorizationServerConfigurerAdapter {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity security, ReactiveAuthenticationManager reactiveAuthenticationManager) {
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity security) {
         return security
                 .exceptionHandling(exceptionHandlingSpec -> {
                     exceptionHandlingSpec
@@ -52,8 +52,13 @@ public class OauthSecurityConfig extends AuthorizationServerConfigurerAdapter {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authenticationManager(reactiveAuthenticationManager)
-                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-                .authorizeExchange(exchange -> exchange.anyExchange().authenticated())
+                .securityContextRepository(securityContextRepository)
+                .authorizeExchange(exchange -> {
+                    exchange.pathMatchers("/api/v1/auth/**")
+                            .permitAll()
+                            .anyExchange()
+                            .authenticated();
+                })
                 .addFilterAt(new JwtAuthenticationFilter(jwtService, excludeUrl()), SecurityWebFiltersOrder.HTTP_BASIC)
                 .build();
     }

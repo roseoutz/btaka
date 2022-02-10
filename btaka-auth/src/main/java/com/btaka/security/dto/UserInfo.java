@@ -1,18 +1,24 @@
 package com.btaka.security.dto;
 
+import com.btaka.common.constant.Roles;
 import com.btaka.domain.entity.UserEntity;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+@Getter
 public class UserInfo implements UserDetails {
 
     private final String oid;
     private final String userId;
     private final String password;
     private final String username;
+    private final String email;
+    private final String mobile;
     private final String oauthId;
+    private final Roles roles;
 
     public UserInfo() {
         this.oid = null;
@@ -20,6 +26,9 @@ public class UserInfo implements UserDetails {
         this.password = null;
         this.username = null;
         this.oauthId = null;
+        this.email = null;
+        this.mobile = null;
+        this.roles = Roles.ROLE_GUEST;
     }
 
     public UserInfo(UserEntity userEntity) {
@@ -28,6 +37,9 @@ public class UserInfo implements UserDetails {
         this.password = userEntity.getPassword();
         this.username = userEntity.getUsername();
         this.oauthId = userEntity.getOauthId();
+        this.email = userEntity.getEmail();
+        this.mobile = userEntity.getMobile();
+        this.roles = userEntity.getRoles();
     }
 
     public static UserInfo toUserInfo(UserEntity user) {

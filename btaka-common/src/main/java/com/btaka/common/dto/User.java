@@ -1,6 +1,8 @@
 package com.btaka.common.dto;
 
+import com.btaka.common.constant.Roles;
 import lombok.*;
+
 
 @Builder
 @Getter
@@ -9,14 +11,11 @@ import lombok.*;
 public class User {
 
     private String oid;
-    @NonNull
     private String userId;
-    @NonNull
     private String username;
-    @NonNull
     private String email;
-    @NonNull
     private String mobile;
-
     private String oauthId;
+    private Roles roles;
+
 }

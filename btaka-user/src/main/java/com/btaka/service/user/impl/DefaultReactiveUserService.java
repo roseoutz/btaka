@@ -94,7 +94,7 @@ public class DefaultReactiveUserService implements UserService {
 
                     return entity;
                 })
-                .flatMap(entity -> userMongoRepository.save(entity))
+                .flatMap(userMongoRepository::save)
                 .flatMap(data -> Mono
                         .just(new ResponseDTO(data))
                 );

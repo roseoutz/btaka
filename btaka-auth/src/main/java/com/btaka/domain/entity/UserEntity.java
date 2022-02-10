@@ -1,12 +1,13 @@
 package com.btaka.domain.entity;
 
+import com.btaka.common.constant.Roles;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
 @Data
-@Document("btaka_user")
+@Document("user")
 public class UserEntity {
 
     @Id
@@ -21,6 +22,8 @@ public class UserEntity {
     private String email;
     @NonNull
     private String mobile;
+
+    private Roles roles;
 
     private String oauthId;
 }

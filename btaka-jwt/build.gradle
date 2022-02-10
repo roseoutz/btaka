@@ -10,12 +10,6 @@ jar {
     group = 'com.btaka'
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
 repositories {
     mavenCentral()
 }

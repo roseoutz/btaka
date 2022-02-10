@@ -27,6 +27,6 @@ public class JwtAuthenticationFilter implements WebFilter {
             return chain.filter(exchange);
         }
 
-        return null;
+        return chain.filter(exchange);
     }
 }

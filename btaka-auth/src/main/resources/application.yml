@@ -8,6 +8,13 @@ logging:
         data:
           mongodb: trace
 
+
+btaka:
+  value:
+    jwt:
+      secret: btaka-jwt-service-hahahahahahahaha
+      tokenMaxValidTime: 86400
+
 eureka:
   client:
     fetch-registry: true
@@ -31,6 +38,6 @@ spring:
       host: localhost
       username: firefly
       password: qkseltqnfdl
-      database: btaka_user
+      database: user
       authentication-database: admin
 

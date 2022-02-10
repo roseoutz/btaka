@@ -26,16 +26,13 @@ spring:
   redis:
     host: localhost
     port: 6379
-  r2dbc:
-    url: r2dbc:postgresql://localhost:5432/btaka_user
-    username: firefly
-    password: qkseltqnfdl
-    pool:
-      enabled: true
-      initial-size: 10
-      max-size: 100
-      max-idle-time: 30m
-    name: btaka_user
+  data:
+    mongodb:
+      host: localhost
+      username: firefly
+      password: qkseltqnfdl
+      database: user
+      authentication-database: admin
 
 
 
