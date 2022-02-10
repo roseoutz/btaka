@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+version = '0.0.1-SNAPSHOT'
+
+sourceCompatibility = '11'
+
+jar {
+    group = 'com.btaka'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
