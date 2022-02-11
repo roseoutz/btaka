@@ -9,11 +9,18 @@ eureka:
     service-url:
       defaultZone: http://127.0.0.1:12000/eureka/
   instance:
-    hostname: itemService
+    hostname: boardStudyService
     prefer-ip-address: true
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
 spring:
   application:
-    name: btaka-item-service
+    name: btaka-board-study-service
+  data:
+    mongodb:
+      host: localhost
+      username: firefly
+      password: qkseltqnfdl
+      database: board
+      authentication-database: admin

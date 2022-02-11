@@ -1,36 +1,36 @@
 package com.btaka.domain.entity;
 
+import com.btaka.domain.dto.BoardStudyReplyDTO;
 import lombok.Data;
-import lombok.NonNull;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
-@Document("btaka_board_study")
-public class BoardStudyEntity {
+@Document("btaka_board_study_reply")
+public class BoardStudyReplyEntity {
+
+    public BoardStudyReplyEntity(BoardStudyReplyDTO dto) {
+        this.oid = dto.getOid();
+        this.parentOid = dto.getParentOid();
+        this.reply = dto.getReply();
+        this.insertUser = dto.getInsertUser();
+        this.insertTime = dto.getInsertTime();
+        this.updateTime = dto.getUpdateTime();
+    }
 
     @Id
     private String oid;
 
-    @NonNull
-    private String title;
+    @DocumentReference(lookup = "{'_id':?#{#board_study}}")
+    private String parentOid;
 
-    @NonNull
-    private String contents;
+    private String reply ;
 
-    private List<String> hashTags = new ArrayList<>();
-
-    private boolean isRecruiting;
-
-    private int likes;
 
     private String insertUser;
 
@@ -39,9 +39,4 @@ public class BoardStudyEntity {
 
     @LastModifiedDate
     private LocalDateTime updateTime;
-
-    @ReadOnlyProperty
-    @DocumentReference(lookup = "{'targetOid':?#{#self._id}}")
-    private List<BoardStudyReplyEntity> boardStudyReplyEntity;
-
 }

@@ -3,11 +3,15 @@ package com.btaka.domain.dto;
 import com.btaka.domain.entity.BoardStudyReplyEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class BoardStudyReplyDTO {
 
     public BoardStudyReplyDTO(BoardStudyReplyEntity entity) {
