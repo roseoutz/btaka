@@ -17,6 +17,7 @@ public class BoardStudyReplyDTO {
     public BoardStudyReplyDTO(BoardStudyReplyEntity entity) {
         this.oid = entity.getOid();
         this.parentOid = entity.getParentOid();
+        // this.boardStudyDTO = new BoardStudyDTO(entity.getBoardStudyEntity());
         this.reply = entity.getReply();
         this.insertUser = entity.getInsertUser();
         this.insertTime = entity.getInsertTime();
@@ -25,6 +26,7 @@ public class BoardStudyReplyDTO {
 
     private String oid;
     private String parentOid;
+    private BoardStudyDTO boardStudyDTO;
     private String reply ;
     private String insertUser;
     private LocalDateTime insertTime;

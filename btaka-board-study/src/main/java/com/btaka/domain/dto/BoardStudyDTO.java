@@ -20,19 +20,23 @@ public class BoardStudyDTO {
         this.oid = entity.getOid();
         this.title = entity.getTitle();
         this.contents = entity.getContents();
-        this.hashTags.addAll(entity.getHashTags());
+        this.hashTags = entity.getHashTags();
         this.isRecruiting = entity.isRecruiting();
         this.likes = entity.getLikes();
+        this.views = entity.getViews();
         this.insertUser = entity.getInsertUser();
         this.insertTime = entity.getInsertTime();
         this.updateTime = entity.getUpdateTime();
+        this.boardStudyReplyDTOS = new ArrayList<>();
 
-        if (entity.getBoardStudyReplyEntity() != null)
+
+
+        if (entity.getBoardStudyReplyEntity() != null) {
             entity.getBoardStudyReplyEntity()
-                .forEach(replyEntity -> this.boardStudyReplyDTOS.add(new BoardStudyReplyDTO(replyEntity)));
-        else this.boardStudyReplyDTOS = new ArrayList<>();
+                    .forEach(replyEntity -> this.boardStudyReplyDTOS.add(new BoardStudyReplyDTO(replyEntity)));
+        }
 
-        this.replyCount = this.boardStudyReplyDTOS.size();
+        if (this.boardStudyReplyDTOS!= null && !this.boardStudyReplyDTOS.isEmpty()) this.replyCount = this.boardStudyReplyDTOS.size();
     }
 
     private String oid;
@@ -41,9 +45,10 @@ public class BoardStudyDTO {
     private List<String> hashTags;
     private boolean isRecruiting;
     private int likes;
+    private int views;
     private String insertUser;
     private LocalDateTime insertTime;
     private LocalDateTime updateTime;
     private List<BoardStudyReplyDTO> boardStudyReplyDTOS;
-    private int replyCount;
+    private int replyCount = 0;
 }
