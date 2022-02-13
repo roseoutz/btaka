@@ -17,16 +17,14 @@ public class BoardStudyReplyDTO {
     public BoardStudyReplyDTO(BoardStudyReplyEntity entity) {
         this.oid = entity.getOid();
         this.parentOid = entity.getParentOid();
-        // this.boardStudyDTO = new BoardStudyDTO(entity.getBoardStudyEntity());
         this.reply = entity.getReply();
         this.insertUser = entity.getInsertUser();
-        this.insertTime = entity.getInsertTime();
-        this.updateTime = entity.getUpdateTime();
+        this.insertTime = entity.getInsertTime() == null ? LocalDateTime.now() : entity.getInsertTime();
+        this.updateTime = entity.getUpdateTime() == null ? this.insertTime : entity.getUpdateTime();
     }
 
     private String oid;
     private String parentOid;
-    private BoardStudyDTO boardStudyDTO;
     private String reply ;
     private String insertUser;
     private LocalDateTime insertTime;

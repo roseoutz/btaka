@@ -8,9 +8,11 @@ import com.btaka.domain.service.BoardStudyReplyService;
 import com.btaka.domain.service.BoardStudyService;
 import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service("defaultBoardStudyReplyService")
 public class DefaultBoardStudyReplyService implements BoardStudyReplyService {
@@ -25,8 +27,8 @@ public class DefaultBoardStudyReplyService implements BoardStudyReplyService {
                 .filter(entity -> entity.getParentOid() != null)
                 .flatMap(entity -> replyMongoRepository.save(entity))
                 .flatMap(entity -> boardStudyService.addReply(new BoardStudyReplyDTO(entity)))
-                .switchIfEmpty(Mono.just(new BoardStudyDTO()))
-                .doOnError(error -> new Exception(error));
+                .doOnSuccess(dto -> log.info(dto.toString()))
+                .switchIfEmpty(Mono.just(new BoardStudyDTO()));
     }
 
     @Override

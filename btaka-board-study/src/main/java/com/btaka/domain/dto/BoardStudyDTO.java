@@ -29,8 +29,6 @@ public class BoardStudyDTO {
         this.updateTime = entity.getUpdateTime();
         this.boardStudyReplyDTOS = new ArrayList<>();
 
-
-
         if (entity.getBoardStudyReplyEntity() != null) {
             entity.getBoardStudyReplyEntity()
                     .forEach(replyEntity -> this.boardStudyReplyDTOS.add(new BoardStudyReplyDTO(replyEntity)));
