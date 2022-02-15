@@ -2,17 +2,17 @@
 version: "3"
 # 이 항목 밑에 실행하려는 컨테이너 들을 정의
 services:
-  postres-user:
-    image: postgres:latest
-    container_name: btaka-postgres
-    restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: "${BTAKA_DB_USERNAME}"
-      POSTGRES_PASSWORD: "${BTAKA_DB_PASSWORD}"
-    volumes:
-      - ${BTAKA_BASE_DIR}/postgres/data/:/var/lib/postgresql/data
+ # postres-user:
+ #   image: postgres:latest
+ #   container_name: btaka-postgres
+ #   restart: always
+ #   ports:
+ #     - "5432:5432"
+ #   environment:
+ #     POSTGRES_USER: "${BTAKA_DB_USERNAME}"
+ #     POSTGRES_PASSWORD: "${BTAKA_DB_PASSWORD}"
+ #   volumes:
+ #     - ${BTAKA_BASE_DIR}/postgres/data/:/var/lib/postgresql/data
 
   # 서비스 명
   mongodb:
@@ -35,22 +35,22 @@ services:
 
   #Redis Cache Server
 
-  redis:
-    image: bitnami/redis
-    container_name: btaka-redis
-    ports:
-      - "6379:6379"
-    environment:
-      ALLOW_EMPTY_PASSWORD: "yes"
+  #redis:
+  #  image: bitnami/redis
+  #  container_name: btaka-redis
+  #  ports:
+  #    - "6379:6379"
+  #  environment:
+  #    ALLOW_EMPTY_PASSWORD: "yes"
 
       #SSO Server
-  keycloak:
-    image: jboss/keycloak
-    container_name: btaka-sso
-    ports:
-      - "9135:8080"
-    environment:
-      KEYCLOAK_USER: firefly
-      KEYCLOAK_PASSWORD: qkseltqnfdl
-    volumes:
-      - ${BTAKA_BASE_DIR}//keycloak/data:/tmp
+  #keycloak:
+  #  image: jboss/keycloak
+  #  container_name: btaka-sso
+  #  ports:
+  #    - "9135:8080"
+  #  environment:
+  #    KEYCLOAK_USER: firefly
+  #    KEYCLOAK_PASSWORD: qkseltqnfdl
+  #  volumes:
+  #   - ${BTAKA_BASE_DIR}//keycloak/data:/tmp

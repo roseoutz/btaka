@@ -7,6 +7,7 @@ import com.btaka.dto.AuthResponseDTO;
 import com.btaka.jwt.JwtService;
 import com.btaka.security.service.LoginService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,7 +17,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service("defaultLoginService")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DefaultLoginService implements LoginService {
 
     private final JwtService jwtService;
@@ -25,11 +26,10 @@ public class DefaultLoginService implements LoginService {
 
     @Override
     public Mono<AuthResponseDTO> auth(AuthRequestDTO authRequestDTO) {
-        return userService.findByUserId(authRequestDTO.getUserId())
+        return userService.findByEmail(authRequestDTO.getEmail())
                 .filter(userInfo -> passwordEncoder.matches(authRequestDTO.getPassword(), userInfo.getPassword()))
                 .flatMap(userInfo -> Mono.just(userInfo)
                         .map(user -> User.builder()
-                                .userId(user.getUserId())
                                 .username(user.getUsername())
                                 .email(user.getEmail())
                                 .mobile(user.getMobile())

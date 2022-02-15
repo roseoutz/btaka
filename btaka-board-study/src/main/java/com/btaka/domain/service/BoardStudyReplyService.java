@@ -2,12 +2,16 @@ package com.btaka.domain.service;
 
 import com.btaka.domain.dto.BoardStudyDTO;
 import com.btaka.domain.dto.BoardStudyReplyDTO;
-import reactor.core.publisher.Flux;
+import lombok.NonNull;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public interface BoardStudyReplyService {
 
-    Mono<BoardStudyDTO> add(BoardStudyReplyDTO dto);
+    Mono<List<BoardStudyReplyDTO>> get(@NonNull String postOid);
+
+    Mono<List<BoardStudyReplyDTO>> add(BoardStudyReplyDTO dto);
 
     Mono<BoardStudyDTO> update(BoardStudyReplyDTO dto);
 

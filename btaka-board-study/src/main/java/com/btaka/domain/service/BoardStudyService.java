@@ -11,8 +11,6 @@ public interface BoardStudyService {
 
     Mono<BoardStudyDTO> add(BoardStudyDTO boardStudyDTO);
 
-    Mono<BoardStudyDTO>  addReply(BoardStudyReplyDTO boardStudyReplyDTO);
-
     Mono<BoardStudyDTO> update(BoardStudyDTO boardStudyDTO);
 
     Flux<BoardStudyDTO> delete(String oid);

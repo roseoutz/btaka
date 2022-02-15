@@ -33,6 +33,7 @@ public class BoardStudyEntity {
         this.insertUser = dto.getInsertUser();
         this.insertTime = dto.getInsertTime() == null ? LocalDateTime.now() : dto.getInsertTime();
         this.updateTime = dto.getUpdateTime() == null ? this.insertTime : dto.getUpdateTime();
+        /*
         this.boardStudyReplyEntity = new ArrayList<>();
 
         if (dto.getBoardStudyReplyDTOS() != null)
@@ -41,6 +42,7 @@ public class BoardStudyEntity {
         else this.boardStudyReplyEntity = new ArrayList<>();
 
         this.replyCount = this.boardStudyReplyEntity != null ? this.boardStudyReplyEntity.size() : 0;
+         */
     }
 
     @Id
@@ -68,6 +70,7 @@ public class BoardStudyEntity {
     @LastModifiedDate
     private LocalDateTime updateTime;
 
+    /*
     private List<BoardStudyReplyEntity> boardStudyReplyEntity;
 
     private int replyCount;
@@ -79,5 +82,5 @@ public class BoardStudyEntity {
 
         this.boardStudyReplyEntity.add(boardStudyReplyEntity);
     }
-
+    */
 }

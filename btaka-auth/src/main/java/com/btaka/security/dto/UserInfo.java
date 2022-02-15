@@ -12,17 +12,15 @@ import java.util.Collection;
 public class UserInfo implements UserDetails {
 
     private final String oid;
-    private final String userId;
+    private final String email;
     private final String password;
     private final String username;
-    private final String email;
     private final String mobile;
     private final String oauthId;
     private final Roles roles;
 
     public UserInfo() {
         this.oid = null;
-        this.userId = null;
         this.password = null;
         this.username = null;
         this.oauthId = null;
@@ -33,7 +31,6 @@ public class UserInfo implements UserDetails {
 
     public UserInfo(UserEntity userEntity) {
         this.oid = userEntity.getOid();
-        this.userId = userEntity.getUserId();
         this.password = userEntity.getPassword();
         this.username = userEntity.getUsername();
         this.oauthId = userEntity.getOauthId();

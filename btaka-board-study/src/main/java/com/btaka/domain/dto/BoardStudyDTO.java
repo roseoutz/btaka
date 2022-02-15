@@ -27,6 +27,7 @@ public class BoardStudyDTO {
         this.insertUser = entity.getInsertUser();
         this.insertTime = entity.getInsertTime();
         this.updateTime = entity.getUpdateTime();
+        /*
         this.boardStudyReplyDTOS = new ArrayList<>();
 
         if (entity.getBoardStudyReplyEntity() != null) {
@@ -35,6 +36,7 @@ public class BoardStudyDTO {
         }
 
         if (this.boardStudyReplyDTOS!= null && !this.boardStudyReplyDTOS.isEmpty()) this.replyCount = this.boardStudyReplyDTOS.size();
+         */
     }
 
     private String oid;
@@ -47,6 +49,8 @@ public class BoardStudyDTO {
     private String insertUser;
     private LocalDateTime insertTime;
     private LocalDateTime updateTime;
+    /*
     private List<BoardStudyReplyDTO> boardStudyReplyDTOS;
     private int replyCount = 0;
+     */
 }

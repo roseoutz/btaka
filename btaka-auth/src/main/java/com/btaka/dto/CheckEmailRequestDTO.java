@@ -8,10 +8,9 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthRequestDTO implements Serializable {
+public class CheckEmailRequestDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
+    @NonNull
     private String email;
-    private String password;
+
 }

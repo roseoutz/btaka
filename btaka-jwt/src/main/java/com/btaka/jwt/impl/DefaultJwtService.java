@@ -62,7 +62,7 @@ public class DefaultJwtService implements JwtService {
         final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
 
         return Jwts.builder()
-                .setSubject(user.getUserId())
+                .setSubject(user.getEmail())
                 .setHeader(Collections.singletonMap(Header.TYPE, Header.JWT_TYPE))
                 .setIssuedAt(createdDate)
                 .setExpiration(expirationDate)

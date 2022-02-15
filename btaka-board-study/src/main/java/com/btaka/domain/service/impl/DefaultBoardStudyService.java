@@ -5,7 +5,6 @@ import com.btaka.domain.dto.BoardStudyReplyDTO;
 import com.btaka.domain.entity.BoardStudyEntity;
 import com.btaka.domain.entity.BoardStudyReplyEntity;
 import com.btaka.domain.repo.BoardStudyMongoRepository;
-import com.btaka.domain.repo.BoardStudyReplyMongoRepository;
 import com.btaka.domain.service.BoardStudyService;
 import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -24,8 +20,6 @@ import java.util.Optional;
 public class DefaultBoardStudyService implements BoardStudyService {
 
     private final BoardStudyMongoRepository boardStudyMongoRepository;
-
-    private final BoardStudyReplyMongoRepository replyMongoRepository;
 
     @Override
     public Mono<BoardStudyDTO> get(String oid) {
@@ -36,7 +30,7 @@ public class DefaultBoardStudyService implements BoardStudyService {
                 })
                 .flatMap(boardStudyEntity ->
                         Mono.just(boardStudyEntity)
-                                .map(entity -> new BoardStudyDTO(entity))
+                                .map(BoardStudyDTO::new)
                 ).switchIfEmpty(Mono.just(new BoardStudyDTO()));
     }
 
@@ -48,32 +42,31 @@ public class DefaultBoardStudyService implements BoardStudyService {
     @Override
     public Mono<BoardStudyDTO> add(BoardStudyDTO boardStudyDTO) {
         return Mono.just(new BoardStudyEntity(boardStudyDTO))
-                .flatMap(entity -> boardStudyMongoRepository.save(entity))
+                .flatMap(boardStudyMongoRepository::save)
                 .flatMap(entity ->
                         Mono.just(entity)
-                                .map(savedEntity -> new BoardStudyDTO(savedEntity))
+                                .map(BoardStudyDTO::new)
                 );
     }
 
+    /*
     @Override
     @Transactional
     public Mono<BoardStudyDTO> addReply(BoardStudyReplyDTO boardStudyReplyDTO) {
         return Mono.just(boardStudyReplyDTO)
                 .flatMap(dto ->
-                        get(boardStudyReplyDTO.getParentOid())
-                                .filter(boardStudyDTO -> boardStudyDTO != null)
-                                .flatMap(boardStudyDTO -> Mono.just(new BoardStudyEntity(boardStudyDTO))
-                                        .flatMap(entity -> {
-                                            entity.addReply(new BoardStudyReplyEntity(boardStudyReplyDTO));
-                                            return boardStudyMongoRepository.save(entity);
-                                            // return entity;
-                                        }))
-                )
+                        getByOid(boardStudyReplyDTO.getParentOid())
+                                .filter(Objects::nonNull)
+                                .flatMap(boardStudyEntity -> {
+                                    boardStudyEntity.addReply(new BoardStudyReplyEntity(boardStudyReplyDTO));
+                                    return boardStudyMongoRepository.save(boardStudyEntity);
+                                })
                 .flatMap(entity ->
                     Mono.just(entity)
-                            .map(boardStudyEntity -> new BoardStudyDTO(boardStudyEntity))
-                );
+                            .map(BoardStudyDTO::new)
+                ));
     }
+     */
 
     @Override
     @Transactional
@@ -82,24 +75,24 @@ public class DefaultBoardStudyService implements BoardStudyService {
                 .filter(dto -> !StringUtil.isNullOrEmpty(dto.getOid()))
                 .flatMap(dto ->
                         Mono.just(dto)
-                                .map(data -> new BoardStudyEntity(data))
+                                .map(BoardStudyEntity::new)
                 )
                 .flatMap(entity ->
                         update(entity)
-                                .map(savedEntity -> new BoardStudyDTO(savedEntity))
+                                .map(BoardStudyDTO::new)
                 );
     }
 
     private Mono<BoardStudyEntity> update(BoardStudyEntity boardStudyEntity) {
         return Mono.just(boardStudyEntity)
                 .map(entity -> {
-                    Optional.ofNullable(entity.getTitle()).ifPresent(title -> boardStudyEntity.setTitle(title));
-                    Optional.ofNullable(entity.getContents()).ifPresent(contents -> boardStudyEntity.setContents(contents));
-                    Optional.ofNullable(entity.getHashTags()).ifPresent(tags -> boardStudyEntity.setHashTags(tags));
-                    Optional.ofNullable(entity.isRecruiting()).ifPresent(isRecruiting -> boardStudyEntity.setRecruiting(isRecruiting));
+                    Optional.of(entity.getTitle()).ifPresent(boardStudyEntity::setTitle);
+                    Optional.of(entity.getContents()).ifPresent(boardStudyEntity::setContents);
+                    Optional.ofNullable(entity.getHashTags()).ifPresent(boardStudyEntity::setHashTags);
+                    Optional.of(entity.isRecruiting()).ifPresent(boardStudyEntity::setRecruiting);
                     return boardStudyEntity;
                 })
-                .flatMap(savedEntity -> boardStudyMongoRepository.save(savedEntity))
+                .flatMap(boardStudyMongoRepository::save)
                 .switchIfEmpty(Mono.just(new BoardStudyEntity()));
     }
 
@@ -114,7 +107,7 @@ public class DefaultBoardStudyService implements BoardStudyService {
         return boardStudyMongoRepository.findAll()
                 .flatMap(boardStudyEntity ->
                         Mono.just(boardStudyEntity)
-                                .map(entity -> new BoardStudyDTO(entity))
+                                .map(BoardStudyDTO::new)
                 );
     }
 }

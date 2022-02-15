@@ -11,9 +11,8 @@ import lombok.*;
 public class User {
 
     private String oid;
-    private String userId;
-    private String username;
     private String email;
+    private String username;
     private String mobile;
     private String oauthId;
     private Roles roles;
