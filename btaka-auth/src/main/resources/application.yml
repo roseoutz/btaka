@@ -35,10 +35,10 @@ spring:
     port: 6379
   data:
     mongodb:
-      host: localhost
+      host: 127.0.0.1
       username: firefly
       password: qkseltqnfdl
-      database: user
+      database: btaka_user
       authentication-database: admin
       repositories:
         type: reactive

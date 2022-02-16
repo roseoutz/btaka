@@ -1,21 +1,20 @@
 package com.btaka.domain.service.impl;
 
-import com.btaka.common.constant.Roles;
-import com.btaka.common.dto.User;
+import com.btaka.board.common.constants.Roles;
+import com.btaka.board.common.dto.User;
 import com.btaka.domain.entity.UserEntity;
 import com.btaka.domain.repo.UserRepository;
 import com.btaka.domain.service.UserService;
 import com.btaka.dto.SignUpRequestDTO;
-import com.btaka.dto.SignUpResponseDTO;
 import com.btaka.security.dto.UserInfo;
 import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.Objects;
-
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class DefaultUserService implements UserService {
@@ -46,7 +45,8 @@ public class DefaultUserService implements UserService {
 
                     return userRepository.save(user);
                 })
-                .flatMap(userEntity -> Mono.just(new User(userEntity.getOid(), userEntity.getEmail(), userEntity.getUsername(), userEntity.getMobile(), null, userEntity.getRoles())));
+                .flatMap(userEntity -> Mono.just(new User(userEntity.getOid(), userEntity.getEmail(), userEntity.getUsername(), userEntity.getMobile(), null, userEntity.getRoles())))
+                .doOnError(throwable -> log.error("[BTAKA SignUp Error", throwable));
     }
 
     private boolean validate(SignUpRequestDTO requestDTO) {

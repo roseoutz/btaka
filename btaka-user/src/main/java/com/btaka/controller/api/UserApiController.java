@@ -1,6 +1,6 @@
 package com.btaka.controller.api;
 
-import com.btaka.common.dto.SearchParam;
+import com.btaka.board.common.dto.SearchParam;
 import com.btaka.data.user.dto.UserInfoDTO;
 import com.btaka.service.user.UserService;
 import org.springframework.http.ResponseEntity;

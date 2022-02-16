@@ -1,7 +1,6 @@
 package com.btaka.domain.entity;
 
-import com.btaka.common.constant.Roles;
-import com.btaka.dto.SignUpRequestDTO;
+import com.btaka.board.common.constants.Roles;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -32,5 +31,4 @@ public class UserEntity {
 
     private Roles roles;
 
-    private String oauthId;
 }

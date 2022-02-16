@@ -1,6 +1,6 @@
 package com.btaka.domain.service;
 
-import com.btaka.common.dto.User;
+import com.btaka.board.common.dto.User;
 import com.btaka.dto.SignUpRequestDTO;
 import com.btaka.security.dto.UserInfo;
 import reactor.core.publisher.Mono;

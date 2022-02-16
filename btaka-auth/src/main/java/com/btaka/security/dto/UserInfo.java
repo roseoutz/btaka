@@ -1,29 +1,31 @@
 package com.btaka.security.dto;
 
-import com.btaka.common.constant.Roles;
+import com.btaka.board.common.constants.Roles;
 import com.btaka.domain.entity.UserEntity;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
+import java.util.*;
 
 @Getter
 public class UserInfo implements UserDetails {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     private final String oid;
     private final String email;
     private final String password;
     private final String username;
     private final String mobile;
-    private final String oauthId;
     private final Roles roles;
 
     public UserInfo() {
         this.oid = null;
         this.password = null;
         this.username = null;
-        this.oauthId = null;
         this.email = null;
         this.mobile = null;
         this.roles = Roles.ROLE_GUEST;
@@ -33,7 +35,6 @@ public class UserInfo implements UserDetails {
         this.oid = userEntity.getOid();
         this.password = userEntity.getPassword();
         this.username = userEntity.getUsername();
-        this.oauthId = userEntity.getOauthId();
         this.email = userEntity.getEmail();
         this.mobile = userEntity.getMobile();
         this.roles = userEntity.getRoles();
@@ -45,7 +46,8 @@ public class UserInfo implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+
+        return Set.<GrantedAuthority>of(new SimpleGrantedAuthority(this.roles.name()));
     }
 
     @Override

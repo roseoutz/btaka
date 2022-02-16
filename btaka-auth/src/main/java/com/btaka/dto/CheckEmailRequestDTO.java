@@ -2,6 +2,7 @@ package com.btaka.dto;
 
 import lombok.*;
 
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
 @Getter
@@ -10,7 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class CheckEmailRequestDTO implements Serializable {
 
-    @NonNull
+    @NotEmpty(message = "{btaka.check.email.empty}")
     private String email;
 
 }

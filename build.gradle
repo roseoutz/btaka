@@ -36,10 +36,11 @@ subprojects {
         implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
         runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
         runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
-
+        implementation 'org.modelmapper:modelmapper:3.0.0'
         implementation 'javax.annotation:javax.annotation-api:1.3.2'
         implementation 'io.springfox:springfox-swagger2:2.6.1'
         implementation 'io.springfox:springfox-swagger-ui:2.6.1'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
         developmentOnly 'org.springframework.boot:spring-boot-devtools'
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
@@ -56,6 +57,7 @@ project(':btaka-common') {
     dependencies {
     }
 }
+
 
 project(':btaka-jwt') {
     dependencies {
@@ -108,9 +110,16 @@ project(':btaka-eureka') {
     }
 }
 
-project(':btaka-board-study') {
+project(':btaka-board-common') {
     dependencies {
-        // implementation project(path: ':btaka-jwt')
+        implementation project(path: ':btaka-common')
+    }
+}
+
+project(':btaka-board-dev') {
+    dependencies {
+        implementation project(path: ':btaka-board-common')
+        // implementation 'org.springframework.boot:spring-boot-starter-security'
         implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
         implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
         implementation 'org.springframework.boot:spring-boot-starter-webflux'

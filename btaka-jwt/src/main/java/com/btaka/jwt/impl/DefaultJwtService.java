@@ -1,6 +1,6 @@
 package com.btaka.jwt.impl;
 
-import com.btaka.common.dto.User;
+import com.btaka.board.common.dto.User;
 import com.btaka.jwt.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;

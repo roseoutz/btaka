@@ -1,12 +1,11 @@
 package com.btaka.security.service.impl;
 
-import com.btaka.common.dto.User;
+import com.btaka.board.common.dto.User;
 import com.btaka.domain.service.UserService;
 import com.btaka.dto.AuthRequestDTO;
 import com.btaka.dto.AuthResponseDTO;
 import com.btaka.jwt.JwtService;
 import com.btaka.security.service.LoginService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

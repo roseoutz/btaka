@@ -6,5 +6,9 @@ include 'btaka-api-gw'
 include 'btaka-eureka'
 include 'btaka-auth'
 include 'btaka-user'
-include 'btaka-board-study'
+
+include 'btaka-board-common'
+include 'btaka-board-dev'
+
 include 'btaka-order'
+

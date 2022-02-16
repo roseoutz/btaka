@@ -1,6 +1,6 @@
 package com.btaka.service.user.impl;
 
-import com.btaka.common.dto.SearchParam;
+import com.btaka.board.common.dto.SearchParam;
 import com.btaka.data.user.dto.UserInfoDTO;
 import com.btaka.data.user.entity.UserInfoEntity;
 import com.btaka.domain.user.UserMongoRepository;
@@ -10,7 +10,6 @@ import io.netty.util.internal.StringUtil;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;

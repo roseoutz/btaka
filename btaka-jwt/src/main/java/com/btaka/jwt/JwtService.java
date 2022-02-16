@@ -1,6 +1,6 @@
 package com.btaka.jwt;
 
-import com.btaka.common.dto.User;
+import com.btaka.board.common.dto.User;
 import io.jsonwebtoken.Claims;
 
 import java.util.Date;

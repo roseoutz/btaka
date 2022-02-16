@@ -1,0 +1,28 @@
+server:
+  port: 13000
+
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://127.0.0.1:12000/eureka/
+  instance:
+    hostname: boardDevStudyService
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+spring:
+  application:
+    name: btaka-board-dev-study-service
+  data:
+    mongodb:
+      host: 127.0.0.1
+      username: firefly
+      password: qkseltqnfdl
+      database: btaka_board_dev
+      authentication-database: admin
+      repositories:
+        type: reactive
