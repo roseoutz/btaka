@@ -1,5 +1,6 @@
 package com.btaka.domain.web;
 
+import com.btaka.cache.service.AuthCacheService;
 import com.btaka.dto.AuthRequestDTO;
 import com.btaka.dto.AuthResponseDTO;
 import com.btaka.security.service.LoginService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -21,12 +23,13 @@ public class BtakaAuthApiController {
     private final LoginService loginService;
 
     @PostMapping("/")
-    public Mono<ResponseEntity<AuthResponseDTO>> auth(@RequestBody AuthRequestDTO authRequestDTO) {
+    public Mono<ResponseEntity<AuthResponseDTO>> auth(@RequestBody AuthRequestDTO authRequestDTO, ServerWebExchange webExchange) {
         return Mono.just(authRequestDTO)
                 .filter(dto -> !StringUtil.isNullOrEmpty(dto.getEmail()) || !StringUtil.isNullOrEmpty(dto.getPassword()))
-                .flatMap(loginService::auth)
+                .flatMap(dto -> loginService.auth(webExchange, authRequestDTO))
                 .flatMap(authRequestDTOMono -> Mono.just(authRequestDTOMono)
-                        .map(ResponseEntity::ok))
+                        .map(ResponseEntity::ok)
+                )
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
 

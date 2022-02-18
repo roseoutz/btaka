@@ -1,20 +1,24 @@
-package com.btaka.dto;
+package com.btaka.cache.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
+import java.time.LocalDateTime;
 
-@Getter
 @Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponseDTO implements Serializable {
+public class AuthInfo {
 
-    private static final long serialVersionUID = 1L;
+    private String userId;
 
     private String accessToken;
+
+    private LocalDateTime loginAt;
+
+    private LocalDateTime expiredAt;
 
 }

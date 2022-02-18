@@ -11,4 +11,5 @@ include 'btaka-board-common'
 include 'btaka-board-dev'
 
 include 'btaka-order'
+include 'btaka-cache-redis'
 

@@ -35,13 +35,13 @@ services:
 
   #Redis Cache Server
 
-  #redis:
-  #  image: bitnami/redis
-  #  container_name: btaka-redis
-  #  ports:
-  #    - "6379:6379"
-  #  environment:
-  #    ALLOW_EMPTY_PASSWORD: "yes"
+  redis:
+    image: bitnami/redis
+    container_name: btaka-redis
+    ports:
+      - "6379:6379"
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
 
       #SSO Server
   #keycloak:

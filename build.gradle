@@ -116,6 +116,14 @@ project(':btaka-board-common') {
     }
 }
 
+project(':btaka-cache-redis') {
+    dependencies {
+        implementation 'org.modelmapper:modelmapper:2.4.5'
+        implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+}
+
 project(':btaka-board-dev') {
     dependencies {
         implementation project(path: ':btaka-board-common')
@@ -162,6 +170,7 @@ project(':btaka-auth') {
     dependencies {
         implementation project(path: ':btaka-common')
         implementation project(path: ':btaka-jwt')
+        implementation project(path: ':btaka-cache-redis')
         implementation 'org.springframework.boot:spring-boot-starter-security'
         implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
         implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
