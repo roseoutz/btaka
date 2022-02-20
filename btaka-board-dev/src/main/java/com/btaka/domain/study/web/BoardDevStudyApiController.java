@@ -6,6 +6,7 @@ import com.btaka.domain.study.service.BoardDevStudyService;
 import com.btaka.dto.BoardResponseDTO;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

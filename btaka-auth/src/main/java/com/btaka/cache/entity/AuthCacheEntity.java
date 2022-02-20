@@ -12,7 +12,7 @@ import java.io.Serializable;
 public class AuthCacheEntity implements Serializable {
 
     @Id
-    private String oid;
+    private String sid;
 
     private AuthInfo authInfo;
 

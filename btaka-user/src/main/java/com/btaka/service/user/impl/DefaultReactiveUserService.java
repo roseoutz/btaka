@@ -51,7 +51,7 @@ public class DefaultReactiveUserService implements UserService {
     @Override
     public Flux<ResponseDTO> searchUser(SearchParam searchParam) {
         return Flux.just(searchParam)
-                .subscribeOn(Schedulers.boundedElastic())
+                .publishOn(Schedulers.boundedElastic())
                 .flatMap(param -> {
                             Query searchQuery = new Query();
                             param.getParamMap()

@@ -9,4 +9,6 @@ public interface LoginService {
 
     Mono<AuthResponseDTO> auth(ServerWebExchange webExchange, AuthRequestDTO authRequestDTO);
 
+    Mono<AuthResponseDTO> isLogin(String psid);
+
 }
