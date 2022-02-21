@@ -11,6 +11,7 @@ db.createUser({
 
 use btaka_user
 use btaka_board_dev
+use test
 
 db.grantRolesToUser("firefly",
     [
@@ -20,4 +21,9 @@ db.grantRolesToUser("firefly",
 db.grantRolesToUser("firefly",
     [
         {role: "readWrite", db: "btaka_board_dev"}
+    ])
+
+db.grantRolesToUser("firefly",
+    [
+        {role: "readWrite", db: "test"}
     ])
