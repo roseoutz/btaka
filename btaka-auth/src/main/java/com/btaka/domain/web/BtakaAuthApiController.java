@@ -22,7 +22,7 @@ public class BtakaAuthApiController {
 
     private final LoginService loginService;
 
-    @PostMapping
+    @PostMapping("/process")
     public Mono<ResponseEntity<AuthResponseDTO>> auth(@RequestBody AuthRequestDTO authRequestDTO, ServerWebExchange webExchange) {
         return Mono.just(authRequestDTO)
                 .filter(dto -> !StringUtil.isNullOrEmpty(dto.getEmail()) || !StringUtil.isNullOrEmpty(dto.getPassword()))

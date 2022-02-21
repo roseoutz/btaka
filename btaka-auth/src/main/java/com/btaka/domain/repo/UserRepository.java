@@ -12,4 +12,6 @@ public interface UserRepository extends ReactiveMongoRepository<UserEntity, Stri
 
     Mono<UserEntity> findByOid(String oid);
 
+    Mono<Boolean> existsByEmail(String email);
+
 }

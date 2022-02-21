@@ -7,6 +7,7 @@ import com.btaka.domain.repo.UserRepository;
 import com.btaka.domain.service.UserService;
 import com.btaka.dto.SignUpRequestDTO;
 import com.btaka.security.dto.UserInfo;
+import com.mongodb.DuplicateKeyException;
 import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +26,15 @@ public class DefaultUserService implements UserService {
 
     @Override
     public Mono<User> singUp(SignUpRequestDTO requestDTO) {
-        return Mono.just(requestDTO)
-                .filter(this::validate)
+        return checkUserEmail(requestDTO.getEmail())
+                .flatMap(isCheck -> {
+                    if (isCheck) {
+                        return Mono.error(new Exception(""));
+                    } else {
+                        return Mono.just(true);
+                    }
+                })
+                .then(Mono.just(requestDTO))
                 .flatMap(dto -> {
                     String encPassword = passwordEncoder.encode(requestDTO.getPassword());
 
@@ -46,17 +54,9 @@ public class DefaultUserService implements UserService {
                     return userRepository.save(user);
                 })
                 .flatMap(userEntity -> Mono.just(new User(userEntity.getOid(), userEntity.getEmail(), userEntity.getUsername(), userEntity.getMobile(), null, userEntity.getRoles())))
-                .doOnError(throwable -> log.error("[BTAKA SignUp Error", throwable));
+                .doOnError(throwable -> log.error("[BTAKA] SignUp Error", throwable));
     }
 
-    private boolean validate(SignUpRequestDTO requestDTO) {
-
-        if (StringUtil.isNullOrEmpty(requestDTO.getUserName())) return false;
-        if (StringUtil.isNullOrEmpty(requestDTO.getPassword())) return false;
-        if (StringUtil.isNullOrEmpty(requestDTO.getEmail())) return false;
-
-        return true;
-    }
 
     @Override
     public Mono<Boolean> checkUserEmail(String email) {

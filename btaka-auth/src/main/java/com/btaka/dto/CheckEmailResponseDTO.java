@@ -12,5 +12,8 @@ public class CheckEmailResponseDTO implements Serializable {
 
     @NonNull
     private boolean isExist;
-    
+
+    private boolean result;
+
+    private int statusCode;
 }

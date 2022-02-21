@@ -17,4 +17,8 @@ public class AuthResponseDTO implements Serializable {
 
     private String accessToken;
 
+    private boolean result;
+
+    private int statusCode;
+
 }

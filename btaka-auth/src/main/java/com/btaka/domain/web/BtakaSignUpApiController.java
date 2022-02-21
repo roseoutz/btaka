@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
@@ -25,11 +26,10 @@ public class BtakaSignUpApiController {
         return userService.singUp(signUpRequestDTO)
                 .flatMap(user -> Mono.just(user)
                         .map(info -> ResponseEntity.ok(SignUpResponseDTO.builder()
-                                .oid(info.getOid())
-                                .email(info.getEmail())
-                                .userName(info.getUsername())
-                                .build())
-                        )
+                                    .oid(info.getOid())
+                                    .email(info.getEmail())
+                                    .userName(info.getUsername())
+                                    .build()))
                 )
                 .doOnError(error -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error.getMessage()));
     }
@@ -37,7 +37,7 @@ public class BtakaSignUpApiController {
     @PostMapping("/check")
     public Mono<ResponseEntity<CheckEmailResponseDTO>> checkUser(@Validated @RequestBody CheckEmailRequestDTO emailRequestDTO) {
         return userService.checkUserEmail(emailRequestDTO.getEmail())
-                .flatMap(isExist -> Mono.just(new CheckEmailResponseDTO(isExist))
+                .flatMap(isExist -> Mono.just(new CheckEmailResponseDTO(isExist, true, 200))
                         .map(ResponseEntity::ok)
                 )
                 .doOnError(error -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error.getMessage()));

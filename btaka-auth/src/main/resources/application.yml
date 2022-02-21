@@ -10,6 +10,11 @@ logging:
 
 
 btaka:
+  social:
+    kakao:
+      clientId: 71eceb279c8b62a011f4a83cb3a76931
+      clientSecret:
+      requestURl: https://kauth.kakao.com/oauth/authorize
   value:
     jwt:
       secret: btaka-jwt-service-hahahahahahahaha
@@ -20,7 +25,7 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://127.0.0.1:12000/eureka/
+      defaultZone: http://127.0.0.1:1200/eureka/
   instance:
     hostname: authService
     prefer-ip-address: true

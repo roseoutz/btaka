@@ -16,4 +16,8 @@ public class SignUpResponseDTO implements Serializable {
     private String oid;
     private String email;
     private String userName;
+
+    private boolean result;
+
+    private int statusCode;
 }
