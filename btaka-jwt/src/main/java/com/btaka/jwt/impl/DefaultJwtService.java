@@ -2,6 +2,7 @@ package com.btaka.jwt.impl;
 
 import com.btaka.board.common.dto.User;
 import com.btaka.jwt.JwtService;
+import com.btaka.jwt.dto.JwtDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -55,13 +57,13 @@ public class DefaultJwtService implements JwtService {
     }
 
     @Override
-    public String generateToken(User user) {
+    public JwtDTO generateToken(User user) {
 
         long expirationTimeLong = Long.parseLong(tokenMaxValidTime);
         final Date createdDate = new Date();
         final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
 
-        return Jwts.builder()
+        String accessToken = Jwts.builder()
                 .setSubject(user.getEmail())
                 .setHeader(Collections.singletonMap(Header.TYPE, Header.JWT_TYPE))
                 .setIssuedAt(createdDate)
@@ -69,6 +71,13 @@ public class DefaultJwtService implements JwtService {
                 .claim("userinfo", getUserClaim(user))
                 .signWith(key)
                 .compact();
+
+        return JwtDTO.builder()
+                .accessToken(accessToken)
+                .userId(user.getEmail())
+                .loginAt(createdDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+                .expiredAt(expirationDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+                .build();
     }
 
     private Map<String, String> getUserClaim(User user) {

@@ -7,8 +7,13 @@ import com.btaka.cache.redis.service.AbstractRedisCacheService;
 import com.btaka.cache.repo.BtakaAuthRedisCacheRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import springfox.documentation.annotations.Cacheable;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class BtakaAuthRedisCacheService extends AbstractRedisCacheService<String, AuthCacheEntity, AuthCacheDTO>  implements AuthCacheService{
@@ -26,17 +31,25 @@ public class BtakaAuthRedisCacheService extends AbstractRedisCacheService<String
         return authRedisCacheRepository;
     }
 
+    @Transactional
     @Override
     public Mono<AuthCacheDTO> saveAuthInfo(String sessionId, AuthInfo authInfo) {
-        return Mono.just(authInfo)
-                .publishOn(Schedulers.boundedElastic())
-                .map(auth -> {
-                    AuthCacheDTO authCacheDTO = AuthCacheDTO.builder().authInfo(authInfo).sid(sessionId).build();
+        AuthCacheEntity savedCacheEntity = authRedisCacheRepository.save(toEntity(AuthCacheDTO.builder().authInfo(authInfo).sid(sessionId).build()));
 
-                    return authRedisCacheRepository.save(toEntity(authCacheDTO));
-                })
-                .flatMap(authCacheEntity -> Mono.just(authCacheEntity)
-                        .map(this::toDto)
-                );
+
+        return Mono.just(toDto(savedCacheEntity));
+    }
+
+    @Override
+    public Mono<AuthCacheDTO> isLogin(String sessionId) {
+        Optional<AuthCacheEntity> authCacheEntity = authRedisCacheRepository.findById(sessionId);
+
+        if (authCacheEntity.isPresent()) {
+            return Mono.just(authCacheEntity.get())
+                    .filter(entity -> LocalDateTime.now().isAfter(entity.getAuthInfo().getExpiredAt()))
+                    .map(entity -> toDto(entity));
+        } else {
+            return Mono.just(null);
+        }
     }
 }

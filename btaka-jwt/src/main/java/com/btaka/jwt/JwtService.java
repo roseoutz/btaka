@@ -1,6 +1,7 @@
 package com.btaka.jwt;
 
 import com.btaka.board.common.dto.User;
+import com.btaka.jwt.dto.JwtDTO;
 import io.jsonwebtoken.Claims;
 
 import java.util.Date;
@@ -15,7 +16,7 @@ public interface JwtService {
 
     Date getExpiredTime(String token);
 
-    String generateToken(User user);
+    JwtDTO generateToken(User user);
 
     boolean isValidToken(String token);
 }

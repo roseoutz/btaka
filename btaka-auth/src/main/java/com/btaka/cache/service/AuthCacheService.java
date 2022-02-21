@@ -8,4 +8,6 @@ import reactor.core.publisher.Mono;
 public interface AuthCacheService extends RedisCacheService<AuthCacheDTO, String> {
 
     Mono<AuthCacheDTO> saveAuthInfo(String sessionId, AuthInfo authInfo);
+
+    Mono<AuthCacheDTO> isLogin(String sessionId);
 }

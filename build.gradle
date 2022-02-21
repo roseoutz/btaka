@@ -127,6 +127,7 @@ project(':btaka-cache-redis') {
 project(':btaka-board-dev') {
     dependencies {
         implementation project(path: ':btaka-board-common')
+        implementation project(path: ':btaka-cache-redis')
         // implementation 'org.springframework.boot:spring-boot-starter-security'
         implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
         implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'

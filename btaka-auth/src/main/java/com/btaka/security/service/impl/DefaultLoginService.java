@@ -7,7 +7,9 @@ import com.btaka.domain.service.UserService;
 import com.btaka.dto.AuthRequestDTO;
 import com.btaka.dto.AuthResponseDTO;
 import com.btaka.jwt.JwtService;
+import com.btaka.jwt.dto.JwtDTO;
 import com.btaka.security.service.LoginService;
+import com.mongodb.internal.HexUtils;
 import io.netty.handler.codec.http.cookie.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,33 +43,42 @@ public class DefaultLoginService implements LoginService {
         return userService.findByEmail(authRequestDTO.getEmail())
                 .filter(userInfo -> passwordEncoder.matches(authRequestDTO.getPassword(), userInfo.getPassword()))
                 .flatMap(userInfo -> Mono.just(userInfo)
-                        .map(user -> User.builder()
-                                .username(user.getUsername())
-                                .email(user.getEmail())
-                                .mobile(user.getMobile())
-                                .roles(user.getRoles())
-                                .build())
-                        .map(user -> new AuthResponseDTO(jwtService.generateToken(user)))
-                        .doOnSuccess(responseDto ->
-                            Mono.just(responseDto)
-                                .subscribeOn(Schedulers.boundedElastic())
-                                    .flatMap(response -> {
-                                        String sid = webExchange.getRequest().getId();
-                                        String encodeSid = Base64.getEncoder().encodeToString(sid.getBytes(StandardCharsets.UTF_8));
-                                        return authCacheService.saveAuthInfo(encodeSid, AuthInfo.builder().build());
-                                    })
-                                    .subscribe(cacheDTO -> {
-                                        webExchange.getResponse().addCookie(
-                                                ResponseCookie
-                                                        .from("psid", cacheDTO.getSid())
-                                                        .httpOnly(true)
-                                                        .build()
-                                        );
-                                    })
-                        )
+                        .map(user -> {
+                            JwtDTO jwtDTO = jwtService.generateToken(User.builder()
+                                    .username(user.getUsername())
+                                    .email(user.getEmail())
+                                    .mobile(user.getMobile())
+                                    .roles(user.getRoles())
+                                    .build());
+
+                            String sid = webExchange.getRequest().getId();
+                            String encodeSid = HexUtils.toHex(sid.getBytes(StandardCharsets.UTF_8));
+                            authCacheService.saveAuthInfo(encodeSid, AuthInfo.builder()
+                                            .loginAt(jwtDTO.getLoginAt())
+                                            .expiredAt(jwtDTO.getExpiredAt())
+                                            .accessToken(jwtDTO.getAccessToken())
+                                    .build());
+
+                            webExchange.getResponse().addCookie(
+                                    ResponseCookie
+                                            .from("psid", encodeSid)
+                                            .httpOnly(true)
+                                            .build()
+                            );
+                            return AuthResponseDTO.builder().accessToken(jwtDTO.getAccessToken()).build();
+                        })
                 )
                 .onErrorResume(throwable ->
                     Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, throwable.getLocalizedMessage()))
+                );
+    }
+
+    @Override
+    public Mono<AuthResponseDTO> isLogin(String psid) {
+        return authCacheService.isLogin(psid)
+                .filter(authCacheDTO -> authCacheDTO != null)
+                .map(authCacheDTO ->
+                    AuthResponseDTO.builder().accessToken(authCacheDTO.getAuthInfo().getAccessToken()).build()
                 );
     }
 
