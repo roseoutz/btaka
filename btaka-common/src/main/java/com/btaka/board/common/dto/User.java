@@ -12,9 +12,9 @@ public class User {
 
     private String oid;
     private String email;
+    private String password;
     private String username;
     private String mobile;
-    private String oauthId;
     private Roles roles;
 
 }

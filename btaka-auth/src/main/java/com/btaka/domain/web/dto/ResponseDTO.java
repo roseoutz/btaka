@@ -1,4 +1,4 @@
-package com.btaka.dto;
+package com.btaka.domain.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,12 +26,24 @@ public class ResponseDTO implements Serializable {
         this.dataMap = Collections.unmodifiableMap(builder.dataMap);
     }
 
-    public class Builder {
-        private boolean success;
+    public ResponseDTO(Map<String, Object> dataMap) {
+        this.success = true;
+        this.error = null;
+        this.errorMessage = null;
+        this.statusCode = 200;
+        this.dataMap = Collections.unmodifiableMap(dataMap);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private boolean success = true;
         private String error;
         private String errorMessage;
-        private int statusCode;
-        private Map<String, Object> dataMap = new ConcurrentHashMap<>();
+        private int statusCode = 200;
+        private final Map<String, Object> dataMap = new ConcurrentHashMap<>();
 
         public Builder success(boolean success) {
             this.success = success;
@@ -39,7 +51,7 @@ public class ResponseDTO implements Serializable {
         }
 
         public Builder error(String error) {
-            this.success = success;
+            this.error = error;
             return this;
         }
 

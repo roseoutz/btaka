@@ -1,10 +1,8 @@
-package com.btaka.domain.web;
+package com.btaka.domain.web.controller;
 
-import com.btaka.cache.service.AuthCacheService;
-import com.btaka.dto.AuthRequestDTO;
-import com.btaka.dto.AuthResponseDTO;
-import com.btaka.security.service.LoginService;
-import io.netty.handler.codec.http.cookie.Cookie;
+import com.btaka.domain.web.dto.AuthRequestDTO;
+import com.btaka.domain.web.dto.ResponseDTO;
+import com.btaka.domain.service.LoginService;
 import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +21,7 @@ public class BtakaAuthApiController {
     private final LoginService loginService;
 
     @PostMapping("/process")
-    public Mono<ResponseEntity<AuthResponseDTO>> auth(@RequestBody AuthRequestDTO authRequestDTO, ServerWebExchange webExchange) {
+    public Mono<ResponseEntity<ResponseDTO>> auth(@RequestBody AuthRequestDTO authRequestDTO, ServerWebExchange webExchange) {
         return Mono.just(authRequestDTO)
                 .filter(dto -> !StringUtil.isNullOrEmpty(dto.getEmail()) || !StringUtil.isNullOrEmpty(dto.getPassword()))
                 .flatMap(dto -> loginService.auth(webExchange, authRequestDTO))
@@ -31,7 +29,7 @@ public class BtakaAuthApiController {
                         .map(ResponseEntity::ok)
                 )
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()))
-                .doOnError(throwable -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage())));
+                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
     }
 
 
@@ -41,10 +39,10 @@ public class BtakaAuthApiController {
     }
 
     @GetMapping("/")
-    public Mono<ResponseEntity<AuthResponseDTO>> isLogin(@CookieValue(value = "psid") String sessionId) {
+    public Mono<ResponseEntity<ResponseDTO>> isLogin(@CookieValue(value = "psid") String sessionId) {
         return Mono.just(sessionId)
                 .filter(psid -> !Objects.isNull(psid))
-                .flatMap(psid -> loginService.isLogin(psid))
+                .flatMap(loginService::isLogin)
                 .flatMap(authResponseDTO -> Mono.just(authResponseDTO)
                         .map(response -> ResponseEntity.ok(authResponseDTO))
                 ).switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));

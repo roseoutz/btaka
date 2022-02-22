@@ -5,12 +5,10 @@ import com.btaka.board.common.dto.User;
 import com.btaka.domain.entity.UserEntity;
 import com.btaka.domain.repo.UserRepository;
 import com.btaka.domain.service.UserService;
-import com.btaka.dto.SignUpRequestDTO;
-import com.btaka.security.dto.UserInfo;
-import com.mongodb.DuplicateKeyException;
-import io.netty.util.internal.StringUtil;
+import com.btaka.domain.web.dto.SignUpRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -23,6 +21,15 @@ public class DefaultUserService implements UserService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final ModelMapper modelMapper;
+
+    @Override
+    public Mono<User> findByOid(String oid) {
+        return userRepository.findByOid(oid)
+                .map(userEntity -> modelMapper.map(userEntity, User.class))
+                .switchIfEmpty(Mono.just(new User()));
+    }
 
     @Override
     public Mono<User> singUp(SignUpRequestDTO requestDTO) {
@@ -53,7 +60,7 @@ public class DefaultUserService implements UserService {
 
                     return userRepository.save(user);
                 })
-                .flatMap(userEntity -> Mono.just(new User(userEntity.getOid(), userEntity.getEmail(), userEntity.getUsername(), userEntity.getMobile(), null, userEntity.getRoles())))
+                .flatMap(userEntity -> Mono.just(new User(userEntity.getOid(), userEntity.getEmail(), userEntity.getPassword(), userEntity.getUsername(), userEntity.getMobile(), userEntity.getRoles())))
                 .doOnError(throwable -> log.error("[BTAKA] SignUp Error", throwable));
     }
 
@@ -66,8 +73,8 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public Mono<UserInfo> findByEmail(String email) {
+    public Mono<User> findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .flatMap(entity -> Mono.just(UserInfo.toUserInfo(entity)));
+                .flatMap(userEntity -> Mono.just(new User(userEntity.getOid(), userEntity.getEmail(), userEntity.getPassword(), userEntity.getUsername(), userEntity.getMobile(), userEntity.getRoles())));
     }
 }

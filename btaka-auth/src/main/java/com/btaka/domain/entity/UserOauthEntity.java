@@ -2,6 +2,7 @@ package com.btaka.domain.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -16,9 +17,14 @@ public class UserOauthEntity {
     @Id
     private String oid;
 
+    @NonNull
+    @Indexed
+    private String userOid;
+
     private String oauthSite;
 
     @NonNull
+    @Indexed
     private String oauthId;
 
     @NonNull

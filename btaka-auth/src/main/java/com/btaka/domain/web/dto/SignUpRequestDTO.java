@@ -1,4 +1,4 @@
-package com.btaka.dto;
+package com.btaka.domain.web.dto;
 
 import lombok.*;
 import org.springframework.validation.annotation.Validated;

@@ -10,11 +10,16 @@ logging:
 
 
 btaka:
+  oauth:
+    redirect:
+      url: http://localhost:14000/api/v1/sns/result
   social:
     kakao:
-      clientId: 71eceb279c8b62a011f4a83cb3a76931
-      clientSecret:
-      requestURl: https://kauth.kakao.com/oauth/authorize
+      client-id: 71eceb279c8b62a011f4a83cb3a76931
+      client-secret: KMY40epEVg6Fd3Kp0LT647JXDZdooE89
+      auth-url: https://kauth.kakao.com/oauth/authorize
+      token-url: https://kauth.kakao.com/oauth/token
+      user-info-url: https://kapi.kakao.com/v2/user/me
   value:
     jwt:
       secret: btaka-jwt-service-hahahahahahahaha

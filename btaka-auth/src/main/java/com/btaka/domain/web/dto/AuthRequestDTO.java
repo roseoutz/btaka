@@ -1,4 +1,4 @@
-package com.btaka.dto;
+package com.btaka.domain.web.dto;
 
 import lombok.*;
 
@@ -13,9 +13,14 @@ public class AuthRequestDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @NotEmpty(message = "{btaka.auth.email.empty}")
     private String email;
-    @NotEmpty(message = "{btaka.auth.password.empty}")
+
     private String password;
+
+    private boolean isOauth;
+
+    private String oauthId;
+
+    private String token;
 
 }

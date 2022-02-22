@@ -33,6 +33,7 @@ subprojects {
     // 모든 모듈에서 사용하는 라이브러리
     dependencies {
         // 왜 자식에서 다른 모듈의 의존성을 참조하지 못하지...?
+        implementation 'commons-codec:commons-codec:1.15'
         implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
         runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
         runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
