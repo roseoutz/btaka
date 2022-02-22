@@ -5,8 +5,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Builder
-@Getter
-@ToString
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthCacheDTO {

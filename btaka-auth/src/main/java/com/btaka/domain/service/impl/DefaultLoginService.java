@@ -87,10 +87,10 @@ public class DefaultLoginService implements LoginService {
     @Override
     public Mono<ResponseDTO> isLogin(String psid) {
         return authCacheService.isLogin(psid)
-                .filter(Objects::nonNull)
+                .filter(authCacheDTO -> !Objects.isNull(authCacheDTO.getSid()))
                 .map(authCacheDTO ->
-                    ResponseDTO.builder().set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build()
-                );
+                    ResponseDTO.builder().set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build())
+                .switchIfEmpty(Mono.just(ResponseDTO.builder().success(false).build()));
     }
 
 }

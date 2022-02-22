@@ -53,6 +53,7 @@ public abstract class AbstractRedisCacheService<ID, T, D> {
     }
 
     protected D toDto(T entity) {
-        return modelMapper.map(entity, dtoClass);
+        D dto = modelMapper.map(entity, dtoClass);
+        return dto;
     }
 }

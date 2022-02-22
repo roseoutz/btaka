@@ -49,7 +49,7 @@ public class BtakaAuthRedisCacheService extends AbstractRedisCacheService<String
                     .filter(entity -> LocalDateTime.now().isAfter(entity.getAuthInfo().getExpiredAt()))
                     .map(entity -> toDto(entity));
         } else {
-            return Mono.just(null);
+            return Mono.just(new AuthCacheDTO());
         }
     }
 }

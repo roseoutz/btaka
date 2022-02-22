@@ -2,6 +2,7 @@ package com.btaka.domain.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -9,14 +10,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class ResponseDTO implements Serializable {
 
-    private final boolean success;
-    private final String error;
-    private final String errorMessage;
-    private final int statusCode;
-    private final Map<String, Object> dataMap;
+    private boolean success;
+    private String error;
+    private String errorMessage;
+    private int statusCode;
+    private Map<String, Object> dataMap;
 
     private ResponseDTO(Builder builder) {
         this.success = builder.success;
