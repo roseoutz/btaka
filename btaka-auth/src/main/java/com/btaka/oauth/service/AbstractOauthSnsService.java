@@ -1,7 +1,6 @@
 package com.btaka.oauth.service;
 
 import com.btaka.board.common.dto.SnsUser;
-import com.btaka.domain.service.LoginService;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.domain.service.dto.UserOauthDTO;
@@ -154,15 +153,16 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
         return userInfo(code, state, nonce)
                 .flatMap(snsUser ->
                         userOauthService.get(this.getSite(), snsUser.getId())
-                            .filter(Objects::nonNull)
+                            .filter(userOauthDTO -> !Objects.isNull(userOauthDTO.getOauthId()))
                             .map(userOauthDTO -> snsUser)
                             .switchIfEmpty(
                                     userService.findByOid(userOid)
                                             .flatMap(user -> userOauthService.save(UserOauthDTO.builder()
-                                                        .userOid(user.getOid())
-                                                        .oauthId(snsUser.getId())
-                                                        .oauthSite(getSite())
-                                                        .build()))
+                                                    .userOid(user.getOid())
+                                                    .oauthId(snsUser.getId())
+                                                    .oauthSite(getSite())
+                                                    .email(snsUser.getEmail())
+                                                    .build()))
                                             .then(Mono.just(snsUser))
                             )
                 );

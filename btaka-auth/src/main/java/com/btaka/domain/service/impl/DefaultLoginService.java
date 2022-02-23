@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -64,7 +66,9 @@ public class DefaultLoginService implements LoginService {
     @Override
     public Mono<ResponseDTO> auth(ServerWebExchange webExchange, AuthRequestDTO authRequestDTO) {
         return userService.findByEmail(authRequestDTO.getEmail())
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("Incorrect user authentication info")))
                 .filter(user -> passwordEncoder.matches(authRequestDTO.getPassword(), user.getPassword()))
+                .switchIfEmpty(Mono.error(new BadCredentialsException("Incorrect user authentication info")))
                 .flatMap(user -> this.processLogin(user, webExchange))
                 .onErrorResume(throwable ->
                     Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, throwable.getLocalizedMessage()))
@@ -74,22 +78,27 @@ public class DefaultLoginService implements LoginService {
     @Override
     public Mono<ResponseDTO> authByOauth(ServerWebExchange webExchange, AuthRequestDTO authRequestDTO) {
         return userOauthService.getByOauthId(authRequestDTO.getOauthId())
-                .filter(Objects::nonNull)
+                .filter(userOauthDTO -> !Objects.isNull(authRequestDTO.getOauthId()))
                 .flatMap(userOauthDTO ->
                     userService.findByOid(userOauthDTO.getUserOid())
                             .flatMap(user -> this.processLogin(user, webExchange))
                             .onErrorResume(throwable ->
                                     Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, throwable.getLocalizedMessage()))
-                            )
-                );
+                            ))
+                .switchIfEmpty(Mono.just(new ResponseDTO()));
     }
 
     @Override
     public Mono<ResponseDTO> isLogin(String psid) {
+        if (Objects.isNull(psid)) {
+            return Mono.just(ResponseDTO.builder().success(false).build());
+        }
         return authCacheService.isLogin(psid)
                 .filter(authCacheDTO -> !Objects.isNull(authCacheDTO.getSid()))
-                .map(authCacheDTO ->
-                    ResponseDTO.builder().set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build())
+                .map(authCacheDTO -> {
+                    log.info(authCacheDTO.getSid());
+                    return ResponseDTO.builder().set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build();
+                })
                 .switchIfEmpty(Mono.just(ResponseDTO.builder().success(false).build()));
     }
 

@@ -37,6 +37,12 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /v3/api-docs/swagger.html
+
 spring:
   application:
     name: btaka-auth-service

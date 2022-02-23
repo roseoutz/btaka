@@ -9,8 +9,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import javax.security.auth.login.AccountNotFoundException;
-
 @RequiredArgsConstructor
 @Service("defaultUserOauthService")
 public class DefaultUserOauthService implements UserOauthService {
@@ -30,14 +28,14 @@ public class DefaultUserOauthService implements UserOauthService {
     public Mono<UserOauthDTO> getByOauthId(String oauthId) {
         return userOauthRepository.findByOauthId(oauthId)
                 .map(userOauthEntity -> modelMapper.map(userOauthEntity, UserOauthDTO.class))
-                .switchIfEmpty(Mono.error(AccountNotFoundException::new));
+                .switchIfEmpty(Mono.just(new UserOauthDTO()));
     }
 
     @Override
     public Mono<UserOauthDTO> save(UserOauthDTO userOauthDTO) {
         return Mono.just(userOauthDTO)
                 .map(oauthDTO -> modelMapper.map(oauthDTO, UserOauthEntity.class))
-                .flatMap(userOauthEntity -> userOauthRepository.save(userOauthEntity))
+                .flatMap(userOauthRepository::save)
                 .map(userOauthEntity -> modelMapper.map(userOauthEntity, UserOauthDTO.class));
     }
 

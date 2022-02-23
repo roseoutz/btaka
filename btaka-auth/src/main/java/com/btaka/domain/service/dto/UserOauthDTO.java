@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class UserOauthDTO {
 
-    private String oid;
+    private String id;
 
     private String userOid;
 

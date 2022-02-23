@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
-import springfox.documentation.annotations.Cacheable;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -44,12 +42,9 @@ public class BtakaAuthRedisCacheService extends AbstractRedisCacheService<String
     public Mono<AuthCacheDTO> isLogin(String sessionId) {
         Optional<AuthCacheEntity> authCacheEntity = authRedisCacheRepository.findById(sessionId);
 
-        if (authCacheEntity.isPresent()) {
-            return Mono.just(authCacheEntity.get())
-                    .filter(entity -> LocalDateTime.now().isAfter(entity.getAuthInfo().getExpiredAt()))
-                    .map(entity -> toDto(entity));
-        } else {
-            return Mono.just(new AuthCacheDTO());
-        }
+        return authCacheEntity.map(cacheEntity -> Mono.just(cacheEntity)
+                .filter(entity -> LocalDateTime.now().isBefore(entity.getAuthInfo().getExpiredAt()))
+                .map(this::toDto))
+                .orElseGet(() -> Mono.just(new AuthCacheDTO()));
     }
 }

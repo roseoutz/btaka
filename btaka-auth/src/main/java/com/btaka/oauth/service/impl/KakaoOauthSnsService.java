@@ -46,6 +46,10 @@ public class KakaoOauthSnsService extends AbstractOauthSnsService {
 
         Map<String, String> kakaoAccountMap = ((Map<String,String>)userInfoMap.get("kakao_account"));
         String email = kakaoAccountMap.get("email");
-        return SnsUser.builder().token(token).id(id).email(email).infoMap(convertObjectMap(kakaoAccountMap)).build();
+        return SnsUser.builder()
+                .token(token)
+                .id(id)
+                .email(email)
+                .infoMap(convertObjectMap(kakaoAccountMap)).build();
     }
 }

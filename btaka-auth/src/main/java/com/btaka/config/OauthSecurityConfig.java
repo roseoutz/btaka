@@ -54,7 +54,7 @@ public class OauthSecurityConfig extends AuthorizationServerConfigurerAdapter {
                 .authenticationManager(reactiveAuthenticationManager)
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange(exchange -> {
-                    exchange.pathMatchers("/api/v1/**")
+                    exchange.pathMatchers("/api/v1/**", "/v3/**")
                             .permitAll()
                             .anyExchange()
                             .authenticated();
