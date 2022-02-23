@@ -1,7 +1,6 @@
-// 사용자 계정 생성
+/* 사용자 계정 생성 */
 use admin
 
-db.auth("firefly", "qkseltqnfdl")
 
 db.createUser({
     user: "firefly",
@@ -21,9 +20,4 @@ db.grantRolesToUser("firefly",
 db.grantRolesToUser("firefly",
     [
         {role: "readWrite", db: "btaka_board_dev"}
-    ])
-
-db.grantRolesToUser("firefly",
-    [
-        {role: "readWrite", db: "test"}
     ])
