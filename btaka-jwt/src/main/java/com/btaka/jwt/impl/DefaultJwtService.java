@@ -73,6 +73,7 @@ public class DefaultJwtService implements JwtService {
                 .compact();
 
         return JwtDTO.builder()
+                .oid(user.getOid())
                 .accessToken(accessToken)
                 .userId(user.getEmail())
                 .loginAt(createdDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
@@ -83,6 +84,7 @@ public class DefaultJwtService implements JwtService {
     private Map<String, String> getUserClaim(User user) {
         Map<String, String> claimMap = new ConcurrentHashMap<>();
 
+        claimMap.put("oid", user.getOid());
         claimMap.put("username", user.getUsername());
         claimMap.put("email", user.getEmail());
         claimMap.put("mobile", user.getMobile());

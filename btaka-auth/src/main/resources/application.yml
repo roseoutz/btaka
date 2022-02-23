@@ -20,6 +20,18 @@ btaka:
       auth-url: https://kauth.kakao.com/oauth/authorize
       token-url: https://kauth.kakao.com/oauth/token
       user-info-url: https://kapi.kakao.com/v2/user/me
+    github:
+      client-id: 87403e9d564ac210baf0
+      client-secret: 69fb9a6445cb5b52658610f697752d88abbb6cc8
+      auth-url: https://github.com/login/oauth/authorize
+      token-url: https://github.com/login/oauth/access_token
+      user-info-url: https://api.github.com/user
+    google:
+      client-id: 698737345461-e9jf18rh2r6mocbjl8a4hgpl0skce0gs.apps.googleusercontent.com
+      client-secret: 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
+      auth-url: https://accounts.google.com/o/oauth2/v2/auth
+      token-url: https://oauth2.googleapis.com/token
+      user-info-url: https://www.googleapis.com/oauth2/v1/userinfo
   value:
     jwt:
       secret: btaka-jwt-service-hahahahahahahaha

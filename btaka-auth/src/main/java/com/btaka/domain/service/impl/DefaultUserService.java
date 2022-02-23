@@ -8,7 +8,6 @@ import com.btaka.domain.service.UserService;
 import com.btaka.domain.web.dto.SignUpRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,10 @@ public class DefaultUserService implements UserService {
     @Override
     public Mono<User> findByOid(String oid) {
         return userRepository.findById(oid)
-                .map(userEntity -> modelMapper.map(userEntity, User.class))
+                .map(userEntity -> {
+                    User user = modelMapper.map(userEntity, User.class);
+                    return user;
+                })
                 .switchIfEmpty(Mono.just(new User()));
     }
 

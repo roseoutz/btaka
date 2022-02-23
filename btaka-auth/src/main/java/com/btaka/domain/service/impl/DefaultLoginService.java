@@ -39,12 +39,7 @@ public class DefaultLoginService implements LoginService {
 
     protected Mono<ResponseDTO> processLogin(User user, ServerWebExchange webExchange) {
         return Mono.just(user)
-                .map(dto -> jwtService.generateToken(User.builder()
-                        .username(user.getUsername())
-                        .email(user.getEmail())
-                        .mobile(user.getMobile())
-                        .roles(user.getRoles())
-                        .build()))
+                .map(dto -> jwtService.generateToken(user))
                 .flatMap(jwtDTO -> {
                     String sid = webExchange.getRequest().getId();
                     String encodeSid = HexUtils.toHex(sid.getBytes(StandardCharsets.UTF_8));
@@ -59,7 +54,7 @@ public class DefaultLoginService implements LoginService {
                                             .from("psid", encodeSid)
                                             .httpOnly(true)
                                             .build()))
-                            .then(Mono.just(ResponseDTO.builder().set("accessToken", jwtDTO.getAccessToken()).build()));
+                            .then(Mono.just(ResponseDTO.builder().set("oid", user.getOid()).set("accessToken", jwtDTO.getAccessToken()).build()));
                 });
     }
 
@@ -78,12 +73,13 @@ public class DefaultLoginService implements LoginService {
     @Override
     public Mono<ResponseDTO> authByOauth(ServerWebExchange webExchange, AuthRequestDTO authRequestDTO) {
         return userOauthService.getByOauthId(authRequestDTO.getOauthId())
-                .filter(userOauthDTO -> !Objects.isNull(authRequestDTO.getOauthId()))
+                .filter(userOauthDTO -> !Objects.isNull(userOauthDTO.getOauthId()) && !Objects.isNull(userOauthDTO.getUserOid()))
+                .switchIfEmpty(Mono.error(new Exception("Unregistered Oauth User")))
                 .flatMap(userOauthDTO ->
                     userService.findByOid(userOauthDTO.getUserOid())
                             .flatMap(user -> this.processLogin(user, webExchange))
                             .onErrorResume(throwable ->
-                                    Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, throwable.getLocalizedMessage()))
+                                    Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, throwable.getMessage()))
                             ))
                 .switchIfEmpty(Mono.just(new ResponseDTO()));
     }

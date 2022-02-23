@@ -7,6 +7,7 @@ import com.btaka.domain.service.UserService;
 import com.btaka.oauth.service.AbstractOauthSnsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.json.GsonJsonParser;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +16,8 @@ import java.util.Map;
 public class KakaoOauthSnsService extends AbstractOauthSnsService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private final GsonJsonParser gsonJsonParser = new GsonJsonParser();
 
     public KakaoOauthSnsService(UserService userService, UserOauthService userOauthService, String clientId, String clientSecret, String authUrl, String tokenUrl, String userInfoUrl, String redirectUri) {
         super(userService, userOauthService, clientId, clientSecret, authUrl, tokenUrl, userInfoUrl, redirectUri);
@@ -51,5 +54,10 @@ public class KakaoOauthSnsService extends AbstractOauthSnsService {
                 .id(id)
                 .email(email)
                 .infoMap(convertObjectMap(kakaoAccountMap)).build();
+    }
+
+    @Override
+    protected Map<String, Object> convertTokenToMap(String token) {
+        return gsonJsonParser.parseMap(token);
     }
 }

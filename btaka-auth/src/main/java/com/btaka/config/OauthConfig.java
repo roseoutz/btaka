@@ -2,7 +2,10 @@ package com.btaka.config;
 
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
+import com.btaka.jwt.JwtService;
 import com.btaka.oauth.factory.SnsServiceFactory;
+import com.btaka.oauth.service.impl.GithubOauthSnsService;
+import com.btaka.oauth.service.impl.GoogleOauthSnsService;
 import com.btaka.oauth.service.impl.KakaoOauthSnsService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +26,7 @@ public class OauthConfig {
 
     private final UserService userService;
     private final UserOauthService userOauthService;
+    private final JwtService jwtService;
 
     @Value("${btaka.oauth.redirect.url:http://localhost:14000}")
     private String redirectUrl;
@@ -45,8 +49,13 @@ public class OauthConfig {
     @Bean
     public SnsServiceFactory snsServiceFactory() {
         SnsServiceFactory snsServiceFactory = new SnsServiceFactory();
-        return snsServiceFactory
-                .add(new KakaoOauthSnsService(userService, userOauthService, redirectUrl , social.get("kakao")));
+
+        snsServiceFactory
+                .add(new KakaoOauthSnsService(userService, userOauthService, redirectUrl , social.get("kakao")))
+                .add(new GithubOauthSnsService(userService, userOauthService, redirectUrl, social.get("github")))
+                .add(new GoogleOauthSnsService(jwtService, userService, userOauthService, redirectUrl, social.get("google")));
+
+        return snsServiceFactory;
     }
 
 

@@ -7,7 +7,6 @@ import com.btaka.domain.service.dto.UserOauthDTO;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -40,8 +39,6 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
 
     protected final String redirectUri;
 
-    private final GsonJsonParser gsonJsonParser = new GsonJsonParser();
-
     protected Map<String, Object> convertObjectMap(Map<String, String> stringStringMap) {
         if (Objects.isNull(stringStringMap)) {
             return null;
@@ -67,6 +64,10 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
         paramMap.put("code", code);
         paramMap.put("state", state);
         // paramMap.put("redirect_uri", getRedirectUri());
+        return getTokenParamStr(paramMap);
+    }
+
+    protected String getTokenParamStr(Map<String, String> paramMap) {
         String paramStr = null;
         StringBuilder postData = new StringBuilder();
         for(Map.Entry<String,String> param : paramMap.entrySet()) {
@@ -80,7 +81,6 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
 
 
         return paramStr;
-
     }
 
     @Override
@@ -98,7 +98,8 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .bodyValue(getTokenParamMap(code, state))
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(String.class)
+                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone));
     }
 
     protected Mono<Map> getUserInfo(Map<String, Object> tokenInfoMap) {
@@ -107,13 +108,14 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", tokenInfoMap.get("token_type") + " " + tokenInfoMap.get("access_token"))
                 .retrieve()
-                .bodyToMono(Map.class);
+                .bodyToMono(Map.class)
+                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone));
     }
 
 
 
     protected String getRedirectUri() {
-        return redirectUri + getSite();
+        return redirectUri + "/" + getSite();
     }
 
     protected WebClient getWebClient(String url) {
@@ -122,11 +124,13 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
 
     protected abstract SnsUser convertUserInfo(String token, Map<String, Object> userInfoMap);
 
+    protected abstract Map<String, Object> convertTokenToMap(String token);
+
     protected Mono<SnsUser> getUserInfo(String code, String state) {
         return getToken(code, state)
                 .flatMap(token -> {
                     logger.debug(getSite() + " from get Token == " + token);
-                    Map<String, Object> tokenInfoMap = gsonJsonParser.parseMap(token);
+                    Map<String, Object> tokenInfoMap = convertTokenToMap(token);
                     return getUserInfo(tokenInfoMap)
                             .map(map -> convertUserInfo(token, map));
                 });
@@ -152,13 +156,13 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
     public Mono<SnsUser> register(String userOid, String code, String state, String nonce) {
         return userInfo(code, state, nonce)
                 .flatMap(snsUser ->
-                        userOauthService.get(this.getSite(), snsUser.getId())
+                        userOauthService.get(this.getSite(), userOid)
                             .filter(userOauthDTO -> !Objects.isNull(userOauthDTO.getOauthId()))
                             .map(userOauthDTO -> snsUser)
                             .switchIfEmpty(
                                     userService.findByOid(userOid)
                                             .flatMap(user -> userOauthService.save(UserOauthDTO.builder()
-                                                    .userOid(user.getOid())
+                                                    .userOid(userOid)
                                                     .oauthId(snsUser.getId())
                                                     .oauthSite(getSite())
                                                     .email(snsUser.getEmail())

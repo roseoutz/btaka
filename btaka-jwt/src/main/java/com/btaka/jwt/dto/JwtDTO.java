@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 public class JwtDTO {
 
+    private String oid;
     private String userId;
     private LocalDateTime loginAt;
     private LocalDateTime expiredAt;

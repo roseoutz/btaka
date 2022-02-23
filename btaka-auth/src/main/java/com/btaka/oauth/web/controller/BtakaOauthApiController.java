@@ -7,6 +7,7 @@ import com.btaka.oauth.service.OauthSnsService;
 import com.btaka.domain.web.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
@@ -55,15 +56,26 @@ public class BtakaOauthApiController {
                 .flatMap(snsService ->
                         snsService.register(userOid, authCode, state, newNonce())
                                 .filter(Objects::nonNull)
-                                .flatMap(snsUser -> loginService.authByOauth(serverWebExchange,
-                                        AuthRequestDTO.builder().isOauth(true).oauthId(snsUser.getId()).token(snsUser.getToken()).build()
+                                .flatMap(snsUser -> loginService.authByOauth(serverWebExchange, AuthRequestDTO.builder().isOauth(true).oauthId(snsUser.getId()).token(snsUser.getToken()).build()
                                 ))
                                 .flatMap(responseDTO -> Mono.just(ResponseEntity.ok(responseDTO)))
                 );
     }
 
     @GetMapping("/result/{site}")
-    public Mono<ResponseEntity<ResponseDTO>> result(@PathVariable(name = "site") String site, @RequestParam("code") String authCode, @RequestParam("state") String state, ServerWebExchange serverWebExchange) {
+    public Mono<ResponseEntity<ResponseDTO>> result(
+            @PathVariable(name = "site") String site,
+            @RequestParam(value = "code", required = false) String authCode,
+            @RequestParam(value = "state", required = false) String state,
+            @RequestParam(value = "error", required = false) String error,
+            @RequestParam(value = "error_description", required = false) String errorDescription,
+            @RequestParam(value = "scope", required = false) String scope,
+            @RequestParam(value = "prompt", required = false) String prompt,
+            ServerWebExchange serverWebExchange
+    ) {
+        if (!Objects.isNull(error) || !Objects.isNull(errorDescription)) {
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseDTO.builder().error(error).errorMessage(errorDescription).success(false).build()));
+        }
         return Mono.just(site)
                 .map(siteName -> snsServiceFactory.get(site))
                 .filter(Objects::nonNull)

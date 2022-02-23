@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SnsServiceFactory {
 
 
-    private static Map<String, OauthSnsService> serviceMap = new ConcurrentHashMap<>();
+    private static final Map<String, OauthSnsService> serviceMap = new ConcurrentHashMap<>();
 
     public SnsServiceFactory add(OauthSnsService oauthSnsService) {
         serviceMap.put(oauthSnsService.getSite(), oauthSnsService);
