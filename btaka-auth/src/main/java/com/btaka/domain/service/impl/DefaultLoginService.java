@@ -75,13 +75,12 @@ public class DefaultLoginService implements LoginService {
         return userOauthService.getByOauthId(authRequestDTO.getOauthId())
                 .filter(userOauthDTO -> !Objects.isNull(userOauthDTO.getOauthId()) && !Objects.isNull(userOauthDTO.getUserOid()))
                 .switchIfEmpty(Mono.error(new Exception("Unregistered Oauth User")))
-                .flatMap(userOauthDTO ->
-                    userService.findByOid(userOauthDTO.getUserOid())
-                            .flatMap(user -> this.processLogin(user, webExchange))
-                            .onErrorResume(throwable ->
-                                    Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, throwable.getMessage()))
-                            ))
-                .switchIfEmpty(Mono.just(new ResponseDTO()));
+                .flatMap(userOauthDTO -> userService.findByOid(userOauthDTO.getUserOid()))
+                .flatMap(user -> this.processLogin(user, webExchange))
+                .switchIfEmpty(Mono.just(new ResponseDTO()))
+                .onErrorResume(throwable ->
+                        Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, throwable.getMessage()))
+                );
     }
 
     @Override

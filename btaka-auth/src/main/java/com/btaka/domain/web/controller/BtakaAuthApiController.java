@@ -28,9 +28,9 @@ public class BtakaAuthApiController {
                 .flatMap(responseDTO -> Mono.just(ResponseEntity.ok(responseDTO)))
                 .switchIfEmpty(Mono.just(authRequestDTO)
                         .filter(dto -> !StringUtil.isNullOrEmpty(dto.getEmail()) || !StringUtil.isNullOrEmpty(dto.getPassword()))
-                        .flatMap(dto -> loginService.auth(webExchange, authRequestDTO)
-                                .flatMap(d -> Mono.just(d).map(ResponseEntity::ok)))
-                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage())));
+                        .flatMap(dto -> loginService.auth(webExchange, authRequestDTO))
+                        .flatMap(dto -> Mono.just(dto).map(ResponseEntity::ok)))
+                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
     }
 
 
@@ -44,9 +44,8 @@ public class BtakaAuthApiController {
         return Mono.just(sessionId)
                 .filter(psid -> !Objects.isNull(psid))
                 .flatMap(loginService::isLogin)
-                .flatMap(authResponseDTO -> Mono.just(authResponseDTO)
-                        .map(response -> ResponseEntity.ok(authResponseDTO))
-                ).switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
+                .flatMap(authResponseDTO -> Mono.just(ResponseEntity.ok(authResponseDTO)))
+                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
 
     }
 }

@@ -13,4 +13,6 @@ public interface UserService {
     Mono<Boolean> checkUserEmail(String email);
 
     Mono<User> findByEmail(String email);
+
+    Mono<User> updateUser(String oid, User user);
 }

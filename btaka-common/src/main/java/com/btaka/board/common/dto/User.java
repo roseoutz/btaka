@@ -15,6 +15,11 @@ public class User {
     private String password;
     private String username;
     private String mobile;
+    private String birthdate;
+    private String gender;
+    private String address;
+    private String addressDetail;
+    private String postNum;
     private Roles roles;
 
 }

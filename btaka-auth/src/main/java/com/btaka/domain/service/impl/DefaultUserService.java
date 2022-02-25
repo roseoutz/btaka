@@ -31,7 +31,7 @@ public class DefaultUserService implements UserService {
                     User user = modelMapper.map(userEntity, User.class);
                     return user;
                 })
-                .switchIfEmpty(Mono.just(new User()));
+                .switchIfEmpty(Mono.error(new Exception("user_not_found")));
     }
 
     @Override
@@ -63,7 +63,7 @@ public class DefaultUserService implements UserService {
 
                     return userRepository.save(user);
                 })
-                .flatMap(userEntity -> Mono.just(new User(userEntity.getOid(), userEntity.getEmail(), userEntity.getPassword(), userEntity.getUsername(), userEntity.getMobile(), userEntity.getRoles())))
+                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)))
                 .doOnError(throwable -> log.error("[BTAKA] SignUp Error", throwable));
     }
 
@@ -78,6 +78,32 @@ public class DefaultUserService implements UserService {
     @Override
     public Mono<User> findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .flatMap(userEntity -> Mono.just(new User(userEntity.getOid(), userEntity.getEmail(), userEntity.getPassword(), userEntity.getUsername(), userEntity.getMobile(), userEntity.getRoles())));
+                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)));
+    }
+
+    @Override
+    public Mono<User> updateUser(String oid, User user) {
+        return userRepository.findById(oid)
+                .switchIfEmpty(Mono.error(new Exception("user_not_found")))
+                .flatMap(userEntity -> {
+                    if (!user.getAddress().equals(userEntity.getAddress())) {
+                        userEntity.setAddress(user.getAddress());
+                    }
+
+                    if (!user.getAddressDetail().equals(userEntity.getAddressDetail())) {
+                        userEntity.setAddressDetail(user.getAddressDetail());
+                    }
+
+                    if (!user.getMobile().equals(userEntity.getMobile())) {
+                        userEntity.setMobile(user.getMobile());
+                    }
+
+                    if (!user.getPostNum().equals(userEntity.getPostNum())) {
+                        userEntity.setPostNum(user.getPostNum());
+                    }
+
+                    return userRepository.save(userEntity);
+                })
+                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)));
     }
 }

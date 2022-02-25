@@ -53,13 +53,17 @@ public class BtakaOauthApiController {
         return Mono.just(site)
                 .map(siteName -> snsServiceFactory.get(site))
                 .filter(Objects::nonNull)
-                .flatMap(snsService ->
-                        snsService.register(userOid, authCode, state, newNonce())
-                                .filter(Objects::nonNull)
-                                .flatMap(snsUser -> loginService.authByOauth(serverWebExchange, AuthRequestDTO.builder().isOauth(true).oauthId(snsUser.getId()).token(snsUser.getToken()).build()
-                                ))
-                                .flatMap(responseDTO -> Mono.just(ResponseEntity.ok(responseDTO)))
-                );
+                .flatMap(snsService -> snsService.register(userOid, authCode, state, newNonce()))
+                .filter(Objects::nonNull)
+                .flatMap(snsUser -> loginService.authByOauth(serverWebExchange,
+                        AuthRequestDTO.builder()
+                                .isOauth(true)
+                                .oauthId(snsUser.getId())
+                                .token(snsUser.getToken())
+                                .build()
+                ))
+                .flatMap(responseDTO -> Mono.just(ResponseEntity.ok(responseDTO)))
+                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));;
     }
 
     @GetMapping("/result/{site}")
@@ -79,14 +83,13 @@ public class BtakaOauthApiController {
         return Mono.just(site)
                 .map(siteName -> snsServiceFactory.get(site))
                 .filter(Objects::nonNull)
-                .flatMap(snsService ->
-                    snsService.auth(authCode, state, newNonce())
-                            .filter(Objects::nonNull)
-                            .flatMap(snsUser -> loginService.authByOauth(serverWebExchange,
-                                        AuthRequestDTO.builder().isOauth(true).oauthId(snsUser.getId()).token(snsUser.getToken()).build()
-                                    ))
-                            .flatMap(responseDTO -> Mono.just(ResponseEntity.ok(responseDTO)))
-                );
+                .flatMap(snsService -> snsService.auth(authCode, state, newNonce()))
+                .filter(Objects::nonNull)
+                .flatMap(snsUser -> loginService.authByOauth(serverWebExchange,
+                        AuthRequestDTO.builder().isOauth(true).oauthId(snsUser.getId()).token(snsUser.getToken()).build()
+                ))
+                .flatMap(responseDTO -> Mono.just(ResponseEntity.ok(responseDTO)))
+                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
     }
 
 }
