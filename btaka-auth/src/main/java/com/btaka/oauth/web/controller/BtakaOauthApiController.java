@@ -3,7 +3,6 @@ package com.btaka.oauth.web.controller;
 import com.btaka.domain.service.LoginService;
 import com.btaka.domain.web.dto.AuthRequestDTO;
 import com.btaka.oauth.factory.SnsServiceFactory;
-import com.btaka.oauth.service.OauthSnsService;
 import com.btaka.domain.web.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
@@ -63,7 +62,7 @@ public class BtakaOauthApiController {
                                 .build()
                 ))
                 .flatMap(responseDTO -> Mono.just(ResponseEntity.ok(responseDTO)))
-                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));;
+                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
     }
 
     @GetMapping("/result/{site}")
