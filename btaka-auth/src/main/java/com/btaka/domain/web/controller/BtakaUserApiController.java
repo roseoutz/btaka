@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,6 +27,7 @@ public class BtakaUserApiController {
     @GetMapping("/{oid}")
     public Mono<ResponseEntity<ResponseDTO>> get(@PathVariable(name = "oid") String oid, ServerWebExchange webExchange) {
         return  userService.findByOid(oid)
+                .publishOn(Schedulers.single())
                 .map(user -> ResponseEntity.ok(
                         ResponseDTO.builder()
                                 .set("oid", user.getOid())
@@ -63,6 +65,7 @@ public class BtakaUserApiController {
     @PatchMapping("/{oid}")
     public Mono<ResponseEntity<ResponseDTO>> put(@PathVariable(name = "oid") String oid, @RequestBody User user) {
         return userService.updateUser(oid, user)
+                .publishOn(Schedulers.single())
                 .map(userInfo -> ResponseEntity.ok(
                         ResponseDTO.builder()
                                 .set("oid", userInfo.getOid())

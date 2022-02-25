@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.logging.Level;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -27,10 +29,7 @@ public class DefaultUserService implements UserService {
     @Override
     public Mono<User> findByOid(String oid) {
         return userRepository.findById(oid)
-                .map(userEntity -> {
-                    User user = modelMapper.map(userEntity, User.class);
-                    return user;
-                })
+                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)))
                 .switchIfEmpty(Mono.error(new Exception("user_not_found")));
     }
 
@@ -78,7 +77,9 @@ public class DefaultUserService implements UserService {
     @Override
     public Mono<User> findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)));
+                .log("[TEST]", Level.INFO)
+                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)))
+                .log("[TEST]", Level.INFO);
     }
 
     @Override

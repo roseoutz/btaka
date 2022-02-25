@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -38,6 +39,7 @@ public class BtakaOauthApiController {
     @GetMapping("/{site}")
     public Mono<ResponseEntity<ResponseDTO>> index(@PathVariable(name = "site") String site) {
         return Mono.just(site)
+                .publishOn(Schedulers.single())
                 .map(siteName -> snsServiceFactory.get(site))
                 .filter(Objects::nonNull)
                 .map(snsService -> {
@@ -50,6 +52,7 @@ public class BtakaOauthApiController {
     @GetMapping("/register/{site}/{userOid}")
     public Mono<ResponseEntity<ResponseDTO>> register(@PathVariable(name = "site") String site, @PathVariable(name = "userOid") String userOid, @RequestParam("code") String authCode, @RequestParam("state") String state, ServerWebExchange serverWebExchange) {
         return Mono.just(site)
+                .publishOn(Schedulers.single())
                 .map(siteName -> snsServiceFactory.get(site))
                 .filter(Objects::nonNull)
                 .flatMap(snsService -> snsService.register(userOid, authCode, state, newNonce()))

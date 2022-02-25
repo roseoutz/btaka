@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Objects;
 
@@ -23,7 +24,7 @@ public class BtakaAuthApiController {
     @PostMapping("/process")
     public Mono<ResponseEntity<ResponseDTO>> auth(@CookieValue(value = "psid", required = false) String sessionId, @RequestBody AuthRequestDTO authRequestDTO, ServerWebExchange webExchange) {
         return loginService.isLogin(sessionId)
-                .log()
+                .publishOn(Schedulers.single())
                 .filter(ResponseDTO::isSuccess)
                 .flatMap(responseDTO -> Mono.just(ResponseEntity.ok(responseDTO)))
                 .switchIfEmpty(Mono.just(authRequestDTO)
