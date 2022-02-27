@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
 import java.util.logging.Level;
 
 @Slf4j
@@ -77,34 +78,52 @@ public class DefaultUserService implements UserService {
     @Override
     public Mono<User> findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .log("[TEST]", Level.INFO)
-                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)))
-                .log("[TEST]", Level.INFO);
+                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)));
     }
 
     @Override
     public Mono<User> updateUser(String oid, User user) {
-        return userRepository.findById(oid)
-                .switchIfEmpty(Mono.error(new Exception("user_not_found")))
-                .flatMap(userEntity -> {
-                    if (!user.getAddress().equals(userEntity.getAddress())) {
-                        userEntity.setAddress(user.getAddress());
-                    }
+        return Mono.just(user)
+                .flatMap(inputUser ->
+                    userRepository.findById(oid)
+                            .switchIfEmpty(Mono.error(new Exception("user_not_found")))
+                            .flatMap(userEntity -> {
+                                if (!inputUser.getAddress().equals(userEntity.getAddress())) {
+                                    userEntity.setAddress(inputUser.getAddress());
+                                }
 
-                    if (!user.getAddressDetail().equals(userEntity.getAddressDetail())) {
-                        userEntity.setAddressDetail(user.getAddressDetail());
-                    }
+                                if (!inputUser.getAddressDetail().equals(userEntity.getAddressDetail())) {
+                                    userEntity.setAddressDetail(inputUser.getAddressDetail());
+                                }
 
-                    if (!user.getMobile().equals(userEntity.getMobile())) {
-                        userEntity.setMobile(user.getMobile());
-                    }
+                                if (!inputUser.getMobile().equals(userEntity.getMobile())) {
+                                    userEntity.setMobile(inputUser.getMobile());
+                                }
 
-                    if (!user.getPostNum().equals(userEntity.getPostNum())) {
-                        userEntity.setPostNum(user.getPostNum());
-                    }
+                                if (!inputUser.getPostNum().equals(userEntity.getPostNum())) {
+                                    userEntity.setPostNum(inputUser.getPostNum());
+                                }
 
-                    return userRepository.save(userEntity);
-                })
-                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)));
+                                return userRepository.save(userEntity);
+                            })
+                            .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)))
+                );
+    }
+
+    @Override
+    public Mono<User> changePassword(String oid, User user) {
+        return Mono.just(user)
+                .flatMap(input ->
+                    userRepository.findById(oid)
+                            .switchIfEmpty(Mono.error(new Exception("user_not_found")))
+                            .flatMap(entity -> {
+                                if (Objects.isNull(user.getPassword())) {
+                                    return Mono.error(new Exception("password.is.empty"));
+                                }
+                                String encPassword =  passwordEncoder.encode(user.getPassword());
+                                entity.setPassword(encPassword);
+                                return Mono.just(modelMapper.map(entity, User.class));
+                            })
+                );
     }
 }

@@ -40,46 +40,36 @@ public class DefaultLoginService implements LoginService {
 
     protected Mono<ResponseDTO> processLogin(User user, ServerWebExchange webExchange) {
         return Mono.just(user)
-                .log("[TEST]", Level.INFO)
                 .map(dto -> jwtService.generateToken(user))
                 .flatMap(jwtDTO -> {
                     String sid = webExchange.getRequest().getId();
                     String encodeSid = HexUtils.toHex(sid.getBytes(StandardCharsets.UTF_8));
                     AuthInfo authInfo = AuthInfo.builder()
+                            .userId(jwtDTO.getUserId())
                             .loginAt(jwtDTO.getLoginAt())
                             .expiredAt(jwtDTO.getExpiredAt())
                             .accessToken(jwtDTO.getAccessToken())
                             .build();
                     return authCacheService.saveAuthInfo(encodeSid, authInfo)
-                            .log("[TEST]", Level.INFO)
                             .doOnSuccess(cacheDTO -> webExchange.getResponse().addCookie(
                                     ResponseCookie
                                             .from("psid", encodeSid)
                                             .httpOnly(true)
                                             .build()))
-                            .log("[TEST]", Level.INFO)
-                            .then(Mono.just(ResponseDTO.builder().set("oid", user.getOid()).set("accessToken", jwtDTO.getAccessToken()).build()))
-                            .log("[TEST]", Level.INFO);
-                })
-                .log("[TEST]", Level.INFO);
+                            .then(Mono.just(ResponseDTO.builder().set("oid", user.getOid()).set("accessToken", jwtDTO.getAccessToken()).build()));
+                });
     }
 
     @Override
     public Mono<ResponseDTO> auth(ServerWebExchange webExchange, AuthRequestDTO authRequestDTO) {
         return userService.findByEmail(authRequestDTO.getEmail())
-                .log("[TEST]", Level.INFO)
                 .switchIfEmpty(Mono.error(new UsernameNotFoundException("Incorrect user authentication info")))
-                .log("[TEST]", Level.INFO)
                 .filter(user -> passwordEncoder.matches(authRequestDTO.getPassword(), user.getPassword()))
-                .log("[TEST]", Level.INFO)
                 .switchIfEmpty(Mono.error(new BadCredentialsException("Incorrect user authentication info")))
-                .log("[TEST]", Level.INFO)
                 .flatMap(user -> this.processLogin(user, webExchange))
-                .log("[TEST]", Level.INFO)
                 .onErrorResume(throwable ->
                     Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, throwable.getLocalizedMessage()))
-                )
-                .log("[TEST]", Level.INFO);
+                );
     }
 
     @Override
@@ -102,7 +92,7 @@ public class DefaultLoginService implements LoginService {
         }
         return authCacheService.isLogin(psid)
                 .filter(authCacheDTO -> !Objects.isNull(authCacheDTO.getSid()))
-                .flatMap(authCacheDTO -> Mono.just(ResponseDTO.builder().set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build()))
+                .flatMap(authCacheDTO -> Mono.just(ResponseDTO.builder().set("userId", authCacheDTO.getAuthInfo().getUserId()).set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build()))
                 .switchIfEmpty(Mono.just(ResponseDTO.builder().success(false).build()));
     }
 

@@ -15,4 +15,7 @@ public interface UserService {
     Mono<User> findByEmail(String email);
 
     Mono<User> updateUser(String oid, User user);
+
+    Mono<User> changePassword(String oid, User user);
 }
+

@@ -4,11 +4,11 @@ import com.btaka.board.common.dto.SnsUser;
 import com.btaka.config.OauthConfig;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
-import com.btaka.jwt.JwtService;
 import com.btaka.oauth.service.AbstractOauthSnsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.json.GsonJsonParser;
+import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
 import java.net.URLEncoder;
@@ -17,72 +17,70 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class GoogleOauthSnsService extends AbstractOauthSnsService {
+public class FacebookOauthSnsService extends AbstractOauthSnsService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final GsonJsonParser gsonJsonParser = new GsonJsonParser();
 
-    private final JwtService jwtService;
-
-    public GoogleOauthSnsService(JwtService jwtService, UserService userService, UserOauthService userOauthService, String clientId, String clientSecret, String authUrl, String tokenUrl, String userInfoUrl, String redirectUri) {
+    public FacebookOauthSnsService(UserService userService, UserOauthService userOauthService, String clientId, String clientSecret, String authUrl, String tokenUrl, String userInfoUrl, String redirectUri) {
         super(userService, userOauthService, clientId, clientSecret, authUrl, tokenUrl, userInfoUrl, redirectUri);
-        this.jwtService = jwtService;
     }
 
-    public GoogleOauthSnsService(JwtService jwtService, UserService userService, UserOauthService userOauthService, String redirectUrl, OauthConfig.SocialInfo socialInfo) {
+    public FacebookOauthSnsService(UserService userService, UserOauthService userOauthService, String redirectUrl, OauthConfig.SocialInfo socialInfo) {
         super(userService, userOauthService, socialInfo.getClientId(), socialInfo.getClientSecret(), socialInfo.getAuthUrl(), socialInfo.getTokenUrl(), socialInfo.getUserInfoUrl(), redirectUrl);
-        this.jwtService = jwtService;
     }
 
-    @Override
-    public String getAuthUrl(String state, String nonce) {
-        String googleAuthUrl = authUrl +"?response_type=code&client_id=" + clientId + "&state=" + state +
-                "&redirect_uri=" + URLEncoder.encode(redirectUri + "/" + getSite(), StandardCharsets.UTF_8) + "&scope=" + URLEncoder.encode("openid email profile", StandardCharsets.UTF_8);
-
-        logger.debug("[BTAKA] Google Auth Url = " + googleAuthUrl);
-        return googleAuthUrl;
-    }
-
-    protected Mono<Map> getUserInfo(Map<String, Object> tokenInfoMap) {
-        return getWebClient(userInfoUrl)
-                .get()
-                .header("Authorization", tokenInfoMap.get("token_type") + " " + tokenInfoMap.get("access_token"))
-                .retrieve()
-                .bodyToMono(Map.class)
-                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone));
+    private String getTokenUrl(String code, String state) {
+        return tokenUrl + "?" + getTokenParamMap(code, state);
     }
 
     protected String getTokenParamMap(String code, String state, String grantType) {
         Map<String, String> paramMap = new HashMap<>();
-        paramMap.put("grant_type", Objects.isNull(grantType) ? "authorization_code": grantType);
+        paramMap.put("grant_type", "code");
         paramMap.put("client_id", getClientId());
         paramMap.put("client_secret", getClientSecret());
         paramMap.put("code", code);
-        paramMap.put("state", state);
         paramMap.put("redirect_uri", getRedirectUri());
         return getTokenParamStr(paramMap);
+    }
+
+    @Override
+    protected Mono<String> getToken(String code, String state) {
+        return getWebClient(getTokenUrl(code, state))
+                .get()
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone));
+    }
+
+    @Override
+    public String getAuthUrl(String state, String nonce) {
+        String url = authUrl +"?response_type=code&client_id=" + clientId + "&state=" + state + "&client_id = " + getClientId() +
+                "&redirect_uri=" + URLEncoder.encode(redirectUri + "/" + getSite(), StandardCharsets.UTF_8);
+
+        logger.debug("[BTAKA] facebook Auth Url = " + url);
+        return url;
     }
 
 
     @Override
     public String getSite() {
-        return "google";
+        return "facebook";
     }
 
     @Override
     protected SnsUser convertUserInfo(String token, Map<String, Object> userInfoMap) {
 
-        String id = userInfoMap.get("id") +"";
-        String email = userInfoMap.get("email") +"";
+        String id = userInfoMap.get("id")+"";
 
-
+        Map<String, String> kakaoAccountMap = ((Map<String,String>)userInfoMap.get("kakao_account"));
+        String email = kakaoAccountMap.get("email");
         return SnsUser.builder()
                 .token(token)
                 .id(id)
                 .email(email)
-                .infoMap(userInfoMap)
-                .build();
+                .infoMap(convertObjectMap(kakaoAccountMap)).build();
     }
 
     @Override

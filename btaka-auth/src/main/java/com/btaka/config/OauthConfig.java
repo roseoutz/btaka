@@ -4,6 +4,7 @@ import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.jwt.JwtService;
 import com.btaka.oauth.factory.SnsServiceFactory;
+import com.btaka.oauth.service.impl.FacebookOauthSnsService;
 import com.btaka.oauth.service.impl.GithubOauthSnsService;
 import com.btaka.oauth.service.impl.GoogleOauthSnsService;
 import com.btaka.oauth.service.impl.KakaoOauthSnsService;
@@ -53,7 +54,10 @@ public class OauthConfig {
         snsServiceFactory
                 .add(new KakaoOauthSnsService(userService, userOauthService, redirectUrl , social.get("kakao")))
                 .add(new GithubOauthSnsService(userService, userOauthService, redirectUrl, social.get("github")))
-                .add(new GoogleOauthSnsService(jwtService, userService, userOauthService, redirectUrl, social.get("google")));
+                .add(new GoogleOauthSnsService(jwtService, userService, userOauthService, redirectUrl, social.get("google")))
+                .add(new FacebookOauthSnsService(userService, userOauthService, redirectUrl, social.get("facebook")))
+        ;
+
 
         return snsServiceFactory;
     }

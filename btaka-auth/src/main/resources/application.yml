@@ -1,5 +1,10 @@
 server:
   port: 14000
+#  ssl:
+#    enabled: true
+#    key-alias: outStudyKey
+#    key-password: qkseltqnfdl
+#    key-store: C:\Users\roseoutz\IdeaProjects\btaka-project\outStudy.p12
 
 logging:
   level:
@@ -31,6 +36,12 @@ btaka:
       client-secret: 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
       auth-url: https://accounts.google.com/o/oauth2/v2/auth
       token-url: https://oauth2.googleapis.com/token
+      user-info-url: https://www.googleapis.com/oauth2/v1/userinfo
+    facebook:
+      client-id: 2110566879106337
+      client-secret: df4886a7fd3efa419c7aa6324cdfaa7c
+      auth-url: https://www.facebook.com/v13.0/dialog/oauth
+      token-url: https://graph.facebook.com/v13.0/oauth/access_token
       user-info-url: https://www.googleapis.com/oauth2/v1/userinfo
   value:
     jwt:

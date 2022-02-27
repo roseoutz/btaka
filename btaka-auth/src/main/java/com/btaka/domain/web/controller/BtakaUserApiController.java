@@ -82,4 +82,25 @@ public class BtakaUserApiController {
                 .switchIfEmpty(Mono.just(ResponseEntity.internalServerError().body(ResponseDTO.builder().error("user_not_found").errorMessage("user not found").success(false).statusCode(500).build())))
                 .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
     }
+
+    @PatchMapping("/chagne/password/{oid}")
+    public Mono<ResponseEntity<ResponseDTO>> changePassword(@PathVariable(name = "oid") String oid, @RequestBody User user) {
+        return userService.changePassword(oid, user)
+                .publishOn(Schedulers.single())
+                .map(userInfo -> ResponseEntity.ok(
+                        ResponseDTO.builder()
+                                .set("oid", userInfo.getOid())
+                                .set("userName", userInfo.getUsername())
+                                .set("email", userInfo.getEmail())
+                                .set("mobile", userInfo.getMobile())
+                                .set("birthdate", userInfo.getBirthdate())
+                                .set("gender", userInfo.getGender())
+                                .set("address", userInfo.getAddress())
+                                .set("addressDetail", userInfo.getAddressDetail())
+                                .set("postNum", userInfo.getPostNum())
+                                .build())
+                )
+                .switchIfEmpty(Mono.just(ResponseEntity.internalServerError().body(ResponseDTO.builder().error("user_not_found").errorMessage("user not found").success(false).statusCode(500).build())))
+                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
+    }
 }
