@@ -1,21 +1,29 @@
 package com.btaka.domain.service.impl;
 
+import com.btaka.common.service.AbstractDataService;
 import com.btaka.domain.entity.UserOauthEntity;
 import com.btaka.domain.repo.UserOauthRepository;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.dto.UserOauthDTO;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-@RequiredArgsConstructor
+@Slf4j
 @Service("defaultUserOauthService")
-public class DefaultUserOauthService implements UserOauthService {
+public class DefaultUserOauthService extends AbstractDataService<UserOauthEntity, UserOauthDTO> implements UserOauthService {
 
-    private final UserOauthRepository userOauthRepository;
+    @Autowired
+    private UserOauthRepository userOauthRepository;
 
-    private final ModelMapper modelMapper;
+    @Autowired
+    private ModelMapper modelMapper;
+
+    public DefaultUserOauthService() {
+        super(UserOauthEntity.class, UserOauthDTO.class);
+    }
 
     @Override
     public Mono<UserOauthDTO> get(String oauthSite, String userOid) {

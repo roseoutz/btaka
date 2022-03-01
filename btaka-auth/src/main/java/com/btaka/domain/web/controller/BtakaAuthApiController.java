@@ -1,7 +1,7 @@
 package com.btaka.domain.web.controller;
 
+import com.btaka.board.common.dto.ResponseDTO;
 import com.btaka.domain.web.dto.AuthRequestDTO;
-import com.btaka.domain.web.dto.ResponseDTO;
 import com.btaka.domain.service.LoginService;
 import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +30,7 @@ public class BtakaAuthApiController {
                 .switchIfEmpty(Mono.just(authRequestDTO)
                         .filter(dto -> !StringUtil.isNullOrEmpty(dto.getEmail()) || !StringUtil.isNullOrEmpty(dto.getPassword()))
                         .flatMap(dto -> loginService.auth(webExchange, authRequestDTO))
-                        .flatMap(dto -> Mono.just(dto).map(ResponseEntity::ok)))
-                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
+                        .flatMap(dto -> Mono.just(dto).map(ResponseEntity::ok)));
     }
 
 

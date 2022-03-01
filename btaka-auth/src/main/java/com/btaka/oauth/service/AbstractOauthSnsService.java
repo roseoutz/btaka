@@ -1,6 +1,7 @@
 package com.btaka.oauth.service;
 
 import com.btaka.board.common.dto.SnsUser;
+import com.btaka.board.common.exception.BtakaException;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.domain.service.dto.UserOauthDTO;
@@ -99,7 +100,8 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                 .bodyValue(getTokenParamMap(code, state))
                 .retrieve()
                 .bodyToMono(String.class)
-                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone));
+                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone))
+                .doOnError(throwable -> new BtakaException(throwable));
     }
 
     protected Mono<Map> getUserInfo(Map<String, Object> tokenInfoMap) {
@@ -109,7 +111,8 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                 .header("Authorization", tokenInfoMap.get("token_type") + " " + tokenInfoMap.get("access_token"))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone));
+                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone))
+                .doOnError(throwable -> new BtakaException(throwable));
     }
 
 
@@ -144,7 +147,8 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                     userOauthService.get(getSite(), snsUser.getId())
                             .filter(Objects::nonNull)
                             .then(Mono.just(snsUser))
-                );
+                )
+                .doOnError(throwable -> new BtakaException(throwable));
     }
 
     @Override
@@ -169,6 +173,7 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                                                     .build()))
                                             .then(Mono.just(snsUser))
                             )
-                );
+                )
+                .doOnError(throwable -> new BtakaException(throwable));
     }
 }

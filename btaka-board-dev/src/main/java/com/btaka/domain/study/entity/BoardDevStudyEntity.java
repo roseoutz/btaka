@@ -1,6 +1,5 @@
 package com.btaka.domain.study.entity;
 
-import com.btaka.domain.study.dto.BoardDevStudyDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,29 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @Document("btaka_board_dev_study")
 public class BoardDevStudyEntity {
-
-    public BoardDevStudyEntity(BoardDevStudyDTO dto) {
-        this.oid = dto.getOid();
-        this.title = dto.getTitle();
-        this.contents = dto.getContents();
-        this.hashTags.addAll(dto.getHashTags());
-        this.isRecruiting = dto.isRecruiting();
-        this.likes = dto.getLikes();
-        this.views = 0;
-        this.insertUser = dto.getInsertUser();
-        this.insertTime = dto.getInsertTime() == null ? LocalDateTime.now() : dto.getInsertTime();
-        this.updateTime = dto.getUpdateTime() == null ? this.insertTime : dto.getUpdateTime();
-        /*
-        this.boardStudyReplyEntity = new ArrayList<>();
-
-        if (dto.getBoardStudyReplyDTOS() != null)
-            dto.getBoardStudyReplyDTOS()
-                .forEach(replyDTO -> this.boardStudyReplyEntity.add(new BoardStudyReplyEntity(replyDTO)));
-        else this.boardStudyReplyEntity = new ArrayList<>();
-
-        this.replyCount = this.boardStudyReplyEntity != null ? this.boardStudyReplyEntity.size() : 0;
-         */
-    }
 
     @Id
     private String oid;

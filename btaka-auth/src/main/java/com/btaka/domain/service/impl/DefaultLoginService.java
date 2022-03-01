@@ -1,31 +1,28 @@
 package com.btaka.domain.service.impl;
 
+import com.btaka.board.common.dto.ResponseDTO;
 import com.btaka.board.common.dto.User;
 import com.btaka.cache.dto.AuthInfo;
 import com.btaka.cache.service.AuthCacheService;
+import com.btaka.common.exception.BtakaException;
+import com.btaka.constant.AuthErrorCode;
 import com.btaka.domain.service.UserOauthService;
-import com.btaka.domain.web.dto.ResponseDTO;
 import com.btaka.domain.service.UserService;
 import com.btaka.domain.web.dto.AuthRequestDTO;
 import com.btaka.jwt.JwtService;
 import com.btaka.domain.service.LoginService;
-import com.btaka.jwt.dto.JwtDTO;
 import com.mongodb.internal.HexUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.logging.Level;
 
 @Slf4j
 @Service("defaultLoginService")
@@ -63,12 +60,12 @@ public class DefaultLoginService implements LoginService {
     @Override
     public Mono<ResponseDTO> auth(ServerWebExchange webExchange, AuthRequestDTO authRequestDTO) {
         return userService.findByEmail(authRequestDTO.getEmail())
-                .switchIfEmpty(Mono.error(new UsernameNotFoundException("Incorrect user authentication info")))
+                .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)))
                 .filter(user -> passwordEncoder.matches(authRequestDTO.getPassword(), user.getPassword()))
-                .switchIfEmpty(Mono.error(new BadCredentialsException("Incorrect user authentication info")))
+                .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.PASSWORD_NOT_MATCH)))
                 .flatMap(user -> this.processLogin(user, webExchange))
                 .onErrorResume(throwable ->
-                    Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, throwable.getLocalizedMessage()))
+                    Mono.error(new BtakaException(HttpStatus.UNAUTHORIZED, throwable))
                 );
     }
 
@@ -76,12 +73,12 @@ public class DefaultLoginService implements LoginService {
     public Mono<ResponseDTO> authByOauth(ServerWebExchange webExchange, AuthRequestDTO authRequestDTO) {
         return userOauthService.getByOauthId(authRequestDTO.getOauthId())
                 .filter(userOauthDTO -> !Objects.isNull(userOauthDTO.getOauthId()) && !Objects.isNull(userOauthDTO.getUserOid()))
-                .switchIfEmpty(Mono.error(new Exception("Unregistered Oauth User")))
+                .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.NOT_REGISTER_OAUTH_USER)))
                 .flatMap(userOauthDTO -> userService.findByOid(userOauthDTO.getUserOid()))
                 .flatMap(user -> this.processLogin(user, webExchange))
                 .switchIfEmpty(Mono.just(new ResponseDTO()))
                 .onErrorResume(throwable ->
-                        Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, throwable.getMessage()))
+                        Mono.error(new BtakaException(HttpStatus.INTERNAL_SERVER_ERROR, throwable))
                 );
     }
 

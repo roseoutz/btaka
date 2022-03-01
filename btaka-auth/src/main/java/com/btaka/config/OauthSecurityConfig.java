@@ -1,14 +1,12 @@
 package com.btaka.config;
 
 import com.btaka.jwt.JwtService;
-import com.btaka.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,7 +57,6 @@ public class OauthSecurityConfig extends AuthorizationServerConfigurerAdapter {
                             .anyExchange()
                             .authenticated();
                 })
-                .addFilterAt(new JwtAuthenticationFilter(jwtService, excludeUrl()), SecurityWebFiltersOrder.HTTP_BASIC)
                 .build();
     }
 

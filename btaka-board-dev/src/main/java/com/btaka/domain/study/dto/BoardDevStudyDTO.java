@@ -1,45 +1,16 @@
 package com.btaka.domain.study.dto;
 
 import com.btaka.domain.study.entity.BoardDevStudyEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoardDevStudyDTO {
-
-    public BoardDevStudyDTO(BoardDevStudyEntity entity) {
-        this.oid = entity.getOid();
-        this.title = entity.getTitle();
-        this.contents = entity.getContents();
-        this.repository = entity.getRepository();
-        this.workspace = entity.getWorkspace();
-        this.contact = entity.getContact();
-        this.hashTags = entity.getHashTags();
-        this.isRecruiting = entity.isRecruiting();
-        this.likes = entity.getLikes();
-        this.views = entity.getViews();
-        this.insertUser = entity.getInsertUser();
-        this.insertTime = entity.getInsertTime();
-        this.updateTime = entity.getUpdateTime();
-        /*
-        this.boardStudyReplyDTOS = new ArrayList<>();
-
-        if (entity.getBoardStudyReplyEntity() != null) {
-            entity.getBoardStudyReplyEntity()
-                    .forEach(replyEntity -> this.boardStudyReplyDTOS.add(new BoardStudyReplyDTO(replyEntity)));
-        }
-
-        if (this.boardStudyReplyDTOS!= null && !this.boardStudyReplyDTOS.isEmpty()) this.replyCount = this.boardStudyReplyDTOS.size();
-         */
-    }
 
     private String oid;
     private String title;

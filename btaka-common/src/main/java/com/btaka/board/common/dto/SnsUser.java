@@ -14,8 +14,6 @@ import java.util.Map;
 @AllArgsConstructor
 public class SnsUser {
 
-
-
     private String token;
 
     private String id;

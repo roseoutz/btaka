@@ -2,6 +2,9 @@ package com.btaka.domain.service.impl;
 
 import com.btaka.board.common.constants.Roles;
 import com.btaka.board.common.dto.User;
+import com.btaka.common.exception.BtakaException;
+import com.btaka.common.service.AbstractDataService;
+import com.btaka.constant.AuthErrorCode;
 import com.btaka.domain.entity.UserEntity;
 import com.btaka.domain.repo.UserRepository;
 import com.btaka.domain.service.UserService;
@@ -9,6 +12,7 @@ import com.btaka.domain.web.dto.SignUpRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -17,21 +21,24 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
-public class DefaultUserService implements UserService {
+public class DefaultUserService extends AbstractDataService<UserEntity, User> implements UserService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    private final ModelMapper modelMapper;
+    public DefaultUserService() {
+        super(UserEntity.class, User.class);
+    }
 
     @Override
     public Mono<User> findByOid(String oid) {
         return userRepository.findById(oid)
-                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)))
-                .switchIfEmpty(Mono.error(new Exception("user_not_found")));
+                .flatMap(userEntity -> Mono.just(toDto(userEntity)))
+                .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)));
     }
 
     @Override
@@ -39,7 +46,7 @@ public class DefaultUserService implements UserService {
         return checkUserEmail(requestDTO.getEmail())
                 .flatMap(isCheck -> {
                     if (isCheck) {
-                        return Mono.error(new Exception(""));
+                        return Mono.error(new BtakaException(AuthErrorCode.ALREADY_REGISTER_USER));
                     } else {
                         return Mono.just(true);
                     }
@@ -63,7 +70,7 @@ public class DefaultUserService implements UserService {
 
                     return userRepository.save(user);
                 })
-                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)))
+                .flatMap(userEntity -> Mono.just(toDto(userEntity)))
                 .doOnError(throwable -> log.error("[BTAKA] SignUp Error", throwable));
     }
 
@@ -78,7 +85,7 @@ public class DefaultUserService implements UserService {
     @Override
     public Mono<User> findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)));
+                .flatMap(userEntity -> Mono.just(toDto(userEntity)));
     }
 
     @Override
@@ -106,7 +113,7 @@ public class DefaultUserService implements UserService {
 
                                 return userRepository.save(userEntity);
                             })
-                            .flatMap(userEntity -> Mono.just(modelMapper.map(userEntity, User.class)))
+                            .flatMap(userEntity -> Mono.just(toDto(userEntity)))
                 );
     }
 
@@ -122,7 +129,7 @@ public class DefaultUserService implements UserService {
                                 }
                                 String encPassword =  passwordEncoder.encode(user.getPassword());
                                 entity.setPassword(encPassword);
-                                return Mono.just(modelMapper.map(entity, User.class));
+                                return Mono.just(toDto(entity));
                             })
                 );
     }

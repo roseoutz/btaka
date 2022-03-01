@@ -1,7 +1,7 @@
 package com.btaka.domain.service;
 
+import com.btaka.board.common.dto.ResponseDTO;
 import com.btaka.domain.web.dto.AuthRequestDTO;
-import com.btaka.domain.web.dto.ResponseDTO;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 

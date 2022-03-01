@@ -1,9 +1,9 @@
 package com.btaka.oauth.web.controller;
 
+import com.btaka.board.common.dto.ResponseDTO;
 import com.btaka.domain.service.LoginService;
 import com.btaka.domain.web.dto.AuthRequestDTO;
 import com.btaka.oauth.factory.SnsServiceFactory;
-import com.btaka.domain.web.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.http.HttpStatus;

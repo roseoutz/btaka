@@ -1,0 +1,55 @@
+server:
+  port: 16000
+#  ssl:
+#    enabled: true
+#    key-alias: outStudyKey
+#    key-password: qkseltqnfdl
+#    key-store: C:\Users\roseoutz\IdeaProjects\btaka-project\outStudy.p12
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb: trace
+
+  value:
+    jwt:
+      secret: btaka-jwt-service-hahahahahahahaha
+      tokenMaxValidTime: 86400
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://127.0.0.1:1200/eureka/
+  instance:
+    hostname: configService
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /v3/api-docs/swagger.html
+
+spring:
+  application:
+    name: btaka-config-service
+  redis:
+    host: 127.0.0.1
+    port: 6379
+  data:
+    mongodb:
+      host: 127.0.0.1
+      username: firefly
+      password: qkseltqnfdl
+      database: btaka_user
+      authentication-database: admin
+      repositories:
+        type: reactive
+
+

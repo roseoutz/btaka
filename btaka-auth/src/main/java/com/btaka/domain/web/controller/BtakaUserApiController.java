@@ -1,11 +1,12 @@
 package com.btaka.domain.web.controller;
 
+import com.btaka.board.common.dto.ResponseDTO;
 import com.btaka.board.common.dto.User;
+import com.btaka.common.exception.BtakaException;
+import com.btaka.constant.AuthErrorCode;
 import com.btaka.domain.service.UserService;
-import com.btaka.domain.web.dto.ResponseDTO;
 import com.btaka.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
@@ -41,8 +42,7 @@ public class BtakaUserApiController {
                                 .set("postNum", user.getPostNum())
                                 .build())
                 )
-                .switchIfEmpty(Mono.just(ResponseEntity.internalServerError().body(ResponseDTO.builder().error("user_not_found").errorMessage("user not found").success(false).statusCode(500).build())))
-                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
+                .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)));
         /*
         return Mono.just(webExchange)
                 .map(exchange -> exchange.getRequest().getHeaders())
@@ -79,8 +79,7 @@ public class BtakaUserApiController {
                                 .set("postNum", userInfo.getPostNum())
                                 .build())
                 )
-                .switchIfEmpty(Mono.just(ResponseEntity.internalServerError().body(ResponseDTO.builder().error("user_not_found").errorMessage("user not found").success(false).statusCode(500).build())))
-                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
+                .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)));
     }
 
     @PatchMapping("/chagne/password/{oid}")
@@ -100,7 +99,6 @@ public class BtakaUserApiController {
                                 .set("postNum", userInfo.getPostNum())
                                 .build())
                 )
-                .switchIfEmpty(Mono.just(ResponseEntity.internalServerError().body(ResponseDTO.builder().error("user_not_found").errorMessage("user not found").success(false).statusCode(500).build())))
-                .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
+                .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)));
     }
 }
