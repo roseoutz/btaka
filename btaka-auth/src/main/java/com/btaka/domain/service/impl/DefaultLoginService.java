@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
@@ -48,11 +49,6 @@ public class DefaultLoginService implements LoginService {
                             .accessToken(jwtDTO.getAccessToken())
                             .build();
                     return authCacheService.saveAuthInfo(encodeSid, authInfo)
-                            .doOnSuccess(cacheDTO -> webExchange.getResponse().addCookie(
-                                    ResponseCookie
-                                            .from("psid", encodeSid)
-                                            .httpOnly(true)
-                                            .build()))
                             .then(Mono.just(ResponseDTO.builder().set("oid", user.getOid()).set("accessToken", jwtDTO.getAccessToken()).build()));
                 });
     }

@@ -26,11 +26,16 @@ public class BtakaAuthApiController {
         return loginService.isLogin(sessionId)
                 .publishOn(Schedulers.single())
                 .filter(ResponseDTO::isSuccess)
-                .flatMap(responseDTO -> Mono.just(ResponseEntity.ok(responseDTO)))
+                .map(responseDTO -> ResponseEntity.ok(responseDTO))
                 .switchIfEmpty(Mono.just(authRequestDTO)
                         .filter(dto -> !StringUtil.isNullOrEmpty(dto.getEmail()) || !StringUtil.isNullOrEmpty(dto.getPassword()))
-                        .flatMap(dto -> loginService.auth(webExchange, authRequestDTO))
-                        .flatMap(dto -> Mono.just(dto).map(ResponseEntity::ok)));
+                        .flatMap(dto -> loginService.auth(webExchange, authRequestDTO)
+                                .map(responseDTO -> {
+                                    String psid = (String) responseDTO.getDataMap().getOrDefault("psid", "");
+                                    return ResponseEntity.ok().header("psid", psid).body(responseDTO);
+                                })
+                        )
+                );
     }
 
 
@@ -43,8 +48,9 @@ public class BtakaAuthApiController {
     public Mono<ResponseEntity<ResponseDTO>> isLogin(@CookieValue(value = "psid", required = false) String sessionId) {
         return Mono.just(sessionId)
                 .filter(psid -> !Objects.isNull(psid))
-                .flatMap(loginService::isLogin)
-                .flatMap(authResponseDTO -> Mono.just(ResponseEntity.ok(authResponseDTO)))
+                .flatMap(psid -> loginService.isLogin(psid)
+                            .map(responseDTO -> ResponseEntity.ok(responseDTO))
+                )
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
 
     }

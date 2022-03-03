@@ -16,10 +16,10 @@ public class WebConfig implements WebFluxConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "DELETE", "PUT")
-                .allowedHeaders("*");
-                // .allowCredentials(true);
+                .allowedOrigins("http://localhost:3000", "http://localhost:14000")
+                .allowedMethods("GET", "POST", "DELETE", "PUT", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 
     /* api 만 존재하는데 굳이 필요할까?

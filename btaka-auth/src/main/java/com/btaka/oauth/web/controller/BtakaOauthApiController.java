@@ -88,9 +88,12 @@ public class BtakaOauthApiController {
                 .flatMap(snsService -> snsService.auth(authCode, state, newNonce()))
                 .filter(Objects::nonNull)
                 .flatMap(snsUser -> loginService.authByOauth(serverWebExchange,
-                        AuthRequestDTO.builder().isOauth(true).oauthId(snsUser.getId()).token(snsUser.getToken()).build()
-                ))
-                .flatMap(responseDTO -> Mono.just(ResponseEntity.ok(responseDTO)))
+                            AuthRequestDTO.builder().isOauth(true).oauthId(snsUser.getId()).token(snsUser.getToken()).build())
+                            .map(responseDTO -> {
+                                String psid = (String) responseDTO.getDataMap().getOrDefault("psid", "");
+                                return ResponseEntity.ok().header("psid", psid).body(responseDTO);
+                            })
+                )
                 .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
     }
 
