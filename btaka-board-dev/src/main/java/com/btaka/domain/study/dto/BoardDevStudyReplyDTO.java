@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 public class BoardDevStudyReplyDTO {
 
     private String oid;
-    private String postOid;
-    private String parentOid;
+    private BoardDevStudyDTO post;
+    private BoardDevStudyReplyDTO parent;
     private String reply ;
     private int likes;
     private String insertUser;

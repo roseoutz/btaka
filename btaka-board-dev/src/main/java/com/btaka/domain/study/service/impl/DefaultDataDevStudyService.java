@@ -1,5 +1,7 @@
 package com.btaka.domain.study.service.impl;
 
+import com.btaka.board.common.page.DefaultPageResult;
+import com.btaka.board.common.page.PageResult;
 import com.btaka.common.exception.BtakaException;
 import com.btaka.common.service.AbstractDataService;
 import com.btaka.constant.BoardErrorCode;
@@ -7,16 +9,23 @@ import com.btaka.domain.study.dto.BoardDevStudyDTO;
 import com.btaka.domain.study.entity.BoardDevStudyEntity;
 import com.btaka.domain.study.repo.BoardDevStudyMongoRepository;
 import com.btaka.domain.study.service.BoardDevStudyService;
+import com.btaka.dto.BoardListResponseDTO;
+import com.btaka.dto.BoardResponseDTO;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
 @Service("defaultBoardDevStudyService")
@@ -30,76 +39,88 @@ public class DefaultDataDevStudyService extends AbstractDataService<BoardDevStud
     }
 
     @Override
-    public Mono<BoardDevStudyDTO> get(String oid) {
+    public Mono<BoardDevStudyDTO> getDto(String oid) {
         return getByOid(oid)
                 .filter(boardDevStudyEntity -> !Objects.isNull(boardDevStudyEntity.getOid()))
                 .switchIfEmpty(Mono.error(new BtakaException(BoardErrorCode.POST_NOT_FOUND)))
                 .flatMap(boardDevStudyEntity -> {
                     boardDevStudyEntity.setViews(boardDevStudyEntity.getViews() + 1);
-                    return update(boardDevStudyEntity);
+                    return update(boardDevStudyEntity)
+                            .map(this::toDto);
                 })
-                .flatMap(boardDevStudyEntity ->
-                        Mono.just(boardDevStudyEntity)
-                                .map(this::toDto)
-                ).switchIfEmpty(Mono.just(new BoardDevStudyDTO()));
-    }
-
-    private Mono<BoardDevStudyEntity> getByOid(String oid) {
-        return boardDevStudyMongoRepository.findById(oid)
-                .doOnNext(boardDevStudyEntity -> log.info(boardDevStudyEntity.getOid()))
-                .switchIfEmpty(Mono.just(new BoardDevStudyEntity()));
+                .switchIfEmpty(Mono.error(new BtakaException(BoardErrorCode.POST_NOT_FOUND)));
     }
 
     @Override
-    public Mono<BoardDevStudyDTO> add(BoardDevStudyDTO boardDevStudyDTO) {
+    public Mono<BoardResponseDTO> get(String oid) {
+        return getDto(oid)
+                .flatMap(dto ->
+                        Mono.just(dto)
+                                .map(boardDevStudyDTO -> BoardResponseDTO.of(boardDevStudyDTO, null))
+                ).switchIfEmpty(Mono.error(new BtakaException(BoardErrorCode.POST_NOT_FOUND)));
+    }
+
+    private Mono<BoardDevStudyEntity> getByOid(String oid) {
+        return Mono.just(oid)
+                .publishOn(Schedulers.boundedElastic())
+                .map(postOid -> boardDevStudyMongoRepository.findById(postOid))
+                .map(optionalEntity -> optionalEntity.orElseThrow(() -> new BtakaException(BoardErrorCode.POST_NOT_FOUND)));
+    }
+
+    @Override
+    public Mono<BoardResponseDTO> add(BoardDevStudyDTO boardDevStudyDTO) {
         return Mono.just(toEntity(boardDevStudyDTO))
-                .flatMap(boardDevStudyMongoRepository::save)
-                .flatMap(entity ->
-                        Mono.just(entity)
-                                .map(this::toDto)
-                );
+                .publishOn(Schedulers.boundedElastic())
+                .map(entity -> {
+                    BoardDevStudyEntity savedEntity = boardDevStudyMongoRepository.save(entity);
+                    return BoardResponseDTO.of(toDto(savedEntity), null);
+                });
     }
 
     @Override
     @Transactional
-    public Mono<BoardDevStudyDTO> update(BoardDevStudyDTO boardDevStudyDTO) {
+    public Mono<BoardResponseDTO> update(BoardDevStudyDTO boardDevStudyDTO) {
         return Mono.just(boardDevStudyDTO)
                 .filter(dto -> !StringUtil.isNullOrEmpty(dto.getOid()))
-                .flatMap(dto ->
-                        Mono.just(dto)
-                                .map(this::toEntity)
-                )
-                .flatMap(entity ->
-                        update(entity)
-                                .map(this::toDto)
-                );
+                .flatMap(dto -> {
+                    BoardDevStudyEntity entity = toEntity(dto);
+                    return update(entity)
+                            .map(updatedEntity -> BoardResponseDTO.of(toDto(updatedEntity), null));
+                });
     }
 
     private Mono<BoardDevStudyEntity> update(BoardDevStudyEntity boardDevStudyEntity) {
         return Mono.just(boardDevStudyEntity)
                 .map(entity -> {
-                    Optional.ofNullable(entity.getTitle()).ifPresent(boardDevStudyEntity::setTitle);
-                    Optional.ofNullable(entity.getContents()).ifPresent(boardDevStudyEntity::setContents);
+                    Optional.of(entity.getTitle()).ifPresent(boardDevStudyEntity::setTitle);
+                    Optional.of(entity.getContents()).ifPresent(boardDevStudyEntity::setContents);
                     Optional.ofNullable(entity.getHashTags()).ifPresent(boardDevStudyEntity::setHashTags);
-                    Optional.ofNullable(entity.isRecruiting()).ifPresent(boardDevStudyEntity::setRecruiting);
+                    Optional.of(entity.isRecruiting()).ifPresent(boardDevStudyEntity::setRecruiting);
                     return boardDevStudyEntity;
                 })
-                .flatMap(boardDevStudyMongoRepository::save)
-                .switchIfEmpty(Mono.just(new BoardDevStudyEntity()));
+                .publishOn(Schedulers.boundedElastic())
+                .map(entity -> boardDevStudyMongoRepository.save(entity))
+                .switchIfEmpty(Mono.error(new BtakaException(BoardErrorCode.POST_NOT_FOUND)));
     }
 
     @Override
-    public Flux<BoardDevStudyDTO> delete(String oid) {
-        return boardDevStudyMongoRepository.deleteById(oid)
-                .thenMany(list());
+    public Mono<Void> delete(String oid) {
+        return Mono.just(oid)
+                .publishOn(Schedulers.boundedElastic())
+                .flatMap(postOid -> {
+                    boardDevStudyMongoRepository.deleteById(postOid);
+                    return Mono.empty();
+                });
     }
 
     @Override
-    public Flux<BoardDevStudyDTO> list() {
-        return boardDevStudyMongoRepository.findAll()
-                .flatMap(boardDevStudyEntity ->
-                        Mono.just(boardDevStudyEntity)
-                                .map(this::toDto)
-                );
+    public Mono<BoardListResponseDTO> list(Pageable pageable) {
+        return Mono.just(boardDevStudyMongoRepository.findAll(pageable))
+                .publishOn(Schedulers.boundedElastic())
+                .map(pageResult -> {
+                    List<BoardDevStudyDTO> boardDevStudyDTOS = new CopyOnWriteArrayList<>();
+                    pageResult.get().forEach(entity -> boardDevStudyDTOS.add(toDto(entity)));
+                    return BoardListResponseDTO.of(DefaultPageResult.of(boardDevStudyDTOS));
+                });
     }
 }

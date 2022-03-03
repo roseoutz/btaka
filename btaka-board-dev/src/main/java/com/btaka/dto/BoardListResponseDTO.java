@@ -3,7 +3,6 @@ package com.btaka.dto;
 import com.btaka.board.common.page.DefaultPageResult;
 import com.btaka.board.common.page.PageResult;
 import com.btaka.domain.study.dto.BoardDevStudyDTO;
-import com.btaka.domain.study.dto.BoardDevStudyReplyDTO;
 import lombok.*;
 
 import java.util.List;
@@ -12,31 +11,29 @@ import java.util.List;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BoardResponseDTO  {
+public class BoardListResponseDTO {
 
     private boolean success;
     private String error;
     private String errorMessage;
     private int statusCode;
-    private BoardDevStudyDTO board;
-    private PageResult<BoardDevStudyReplyDTO> pageResult;
+    private PageResult<BoardDevStudyDTO> pageResult;
 
-
-    private BoardResponseDTO(Builder builder) {
-        this.board = builder.board;
-        this.pageResult = builder.pageResult;
+    private BoardListResponseDTO(Builder builder) {
         this.success = builder.success;
         this.error = builder.error;
         this.errorMessage = builder.errorMessage;
         this.statusCode = builder.statusCode;
+        this.pageResult = builder.pageResult;
     }
 
-    public static BoardResponseDTO of(BoardDevStudyDTO board, PageResult<BoardDevStudyReplyDTO> pageResult) {
-        return new BoardResponseDTO(true, null, null, 200, board, pageResult);
-    }
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static BoardListResponseDTO of(PageResult<BoardDevStudyDTO> pageResult) {
+        return new BoardListResponseDTO(true, null, null, 200, pageResult);
     }
 
     public static class Builder {
@@ -44,21 +41,15 @@ public class BoardResponseDTO  {
         private String error;
         private String errorMessage;
         private int statusCode = 200;
-        private BoardDevStudyDTO board;
-        private PageResult<BoardDevStudyReplyDTO> pageResult;
+        private PageResult<BoardDevStudyDTO> pageResult;
 
 
-        public Builder board(BoardDevStudyDTO board) {
-            this.board = board;
+        public Builder board(List<BoardDevStudyDTO> boardDevStudyDTOList) {
+            this.pageResult = new DefaultPageResult<>(boardDevStudyDTOList);
             return this;
         }
 
-        public Builder replys(List<BoardDevStudyReplyDTO> boardDevStudyReplyDTOList) {
-            this.pageResult = new DefaultPageResult<>(boardDevStudyReplyDTOList);
-            return this;
-        }
-
-        public Builder pageResult(PageResult<BoardDevStudyReplyDTO> pageResult) {
+        public Builder pageResult(PageResult<BoardDevStudyDTO> pageResult) {
             this.pageResult = pageResult;
             return this;
         }
@@ -83,8 +74,8 @@ public class BoardResponseDTO  {
             return this;
         }
 
-        public BoardResponseDTO build() {
-            return new BoardResponseDTO(this);
+        public BoardListResponseDTO build() {
+            return new BoardListResponseDTO(this);
         }
     }
 }

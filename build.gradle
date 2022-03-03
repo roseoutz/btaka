@@ -126,11 +126,12 @@ project(':btaka-board-dev') {
     dependencies {
         implementation project(path: ':btaka-common')
         implementation project(path: ':btaka-jwt')
+        implementation project(path: ':btaka-board-common')
         implementation project(path: ':btaka-web-common')
         implementation project(path: ':btaka-cache-redis')
         implementation 'org.springdoc:springdoc-openapi-webmvc-core:1.6.6'
         implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.6.6'
-        implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+        implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
         implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
         implementation 'org.springframework.boot:spring-boot-starter-webflux'
         implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'

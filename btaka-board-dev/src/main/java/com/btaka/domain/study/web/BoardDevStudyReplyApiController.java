@@ -1,5 +1,6 @@
 package com.btaka.domain.study.web;
 
+import com.btaka.board.common.page.DefaultPageResult;
 import com.btaka.domain.study.dto.BoardDevStudyDTO;
 import com.btaka.domain.study.dto.BoardDevStudyReplyDTO;
 import com.btaka.domain.study.service.BoardDevStudyReplyService;
@@ -22,10 +23,10 @@ public class BoardDevStudyReplyApiController {
 
     @PostMapping("/")
     public Mono<ResponseEntity<BoardResponseDTO>> add(@RequestBody BoardDevStudyReplyDTO dto) {
-        return boardDevStudyService.get(dto.getPostOid())
+        return boardDevStudyService.getDto(dto.getPost().getOid())
                 .flatMap(boardDto ->
                         boardDevStudyReplyService.add(dto)
-                                .map(boardStudyReplyDTOS -> new BoardResponseDTO(boardDto, boardStudyReplyDTOS))
+                                .map(boardStudyReplyDTOS -> BoardResponseDTO.of(boardDto, DefaultPageResult.of(boardStudyReplyDTOS)))
                 )
                 .flatMap(boardStudyDTO -> Mono.just(ResponseEntity.ok(boardStudyDTO)))
                 .doOnError(error -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error.getMessage()));
