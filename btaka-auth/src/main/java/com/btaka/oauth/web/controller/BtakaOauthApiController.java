@@ -50,7 +50,7 @@ public class BtakaOauthApiController {
     }
 
     @GetMapping("/register/{site}/{userOid}")
-    public Mono<ResponseEntity<ResponseDTO>> register(@PathVariable(name = "site") String site, @PathVariable(name = "userOid") String userOid, @RequestParam("code") String authCode, @RequestParam("state") String state, ServerWebExchange serverWebExchange) {
+    public Mono<ResponseEntity<ResponseDTO>> register(@PathVariable(name = "site") String site, @PathVariable(name = "userOid") String userOid, @RequestParam("code") String authCode, @RequestParam(name = "state", required = false) String state, ServerWebExchange serverWebExchange) {
         return Mono.just(site)
                 .publishOn(Schedulers.single())
                 .map(siteName -> snsServiceFactory.get(site))
