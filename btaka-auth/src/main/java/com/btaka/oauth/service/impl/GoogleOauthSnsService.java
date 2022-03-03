@@ -24,16 +24,13 @@ public class GoogleOauthSnsService extends AbstractOauthSnsService {
 
     private final GsonJsonParser gsonJsonParser = new GsonJsonParser();
 
-    private final JwtService jwtService;
 
-    public GoogleOauthSnsService(JwtService jwtService, UserService userService, UserOauthService userOauthService, String clientId, String clientSecret, String authUrl, String tokenUrl, String userInfoUrl, String redirectUri) {
+    public GoogleOauthSnsService(UserService userService, UserOauthService userOauthService, String clientId, String clientSecret, String authUrl, String tokenUrl, String userInfoUrl, String redirectUri) {
         super(userService, userOauthService, clientId, clientSecret, authUrl, tokenUrl, userInfoUrl, redirectUri);
-        this.jwtService = jwtService;
     }
 
-    public GoogleOauthSnsService(JwtService jwtService, UserService userService, UserOauthService userOauthService, String redirectUrl, OauthConfig.SocialInfo socialInfo) {
+    public GoogleOauthSnsService(UserService userService, UserOauthService userOauthService, String redirectUrl, OauthConfig.SocialInfo socialInfo) {
         super(userService, userOauthService, socialInfo.getClientId(), socialInfo.getClientSecret(), socialInfo.getAuthUrl(), socialInfo.getTokenUrl(), socialInfo.getUserInfoUrl(), redirectUrl);
-        this.jwtService = jwtService;
     }
 
     @Override
@@ -61,7 +58,7 @@ public class GoogleOauthSnsService extends AbstractOauthSnsService {
         paramMap.put("client_id", getClientId());
         paramMap.put("client_secret", getClientSecret());
         paramMap.put("code", code);
-        paramMap.put("state", state);
+        if (!Objects.isNull(state)) paramMap.put("state", state);
         paramMap.put("redirect_uri", getRedirectUri());
         return getTokenParamStr(paramMap);
     }

@@ -63,7 +63,7 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
         paramMap.put("client_id", getClientId());
         paramMap.put("client_secret", getClientSecret());
         paramMap.put("code", code);
-        paramMap.put("state", state);
+        if (!Objects.isNull(state)) paramMap.put("state", state);
         // paramMap.put("redirect_uri", getRedirectUri());
         return getTokenParamStr(paramMap);
     }
@@ -73,9 +73,11 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
         StringBuilder postData = new StringBuilder();
         for(Map.Entry<String,String> param : paramMap.entrySet()) {
             if(postData.length() != 0) postData.append('&');
-            postData.append(URLEncoder.encode(param.getKey(), StandardCharsets.UTF_8));
-            postData.append('=');
-            postData.append(URLEncoder.encode(param.getValue(), StandardCharsets.UTF_8));
+            if (!Objects.isNull(param.getKey())  && !Objects.isNull(param.getValue())) {
+                postData.append(URLEncoder.encode(param.getKey(), StandardCharsets.UTF_8));
+                postData.append('=');
+                postData.append(URLEncoder.encode(param.getValue(), StandardCharsets.UTF_8));
+            }
         }
 
         paramStr = postData.toString();
