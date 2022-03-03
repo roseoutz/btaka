@@ -1,7 +1,7 @@
 package com.btaka.oauth.service.impl;
 
 import com.btaka.board.common.dto.SnsUser;
-import com.btaka.board.common.exception.BtakaException;
+import com.btaka.common.exception.BtakaException;
 import com.btaka.config.OauthConfig;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
@@ -9,14 +9,12 @@ import com.btaka.oauth.service.AbstractOauthSnsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.json.GsonJsonParser;
-import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class FacebookOauthSnsService extends AbstractOauthSnsService {
 
@@ -53,7 +51,7 @@ public class FacebookOauthSnsService extends AbstractOauthSnsService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone))
-                .doOnError(throwable -> new BtakaException(throwable));
+                .doOnError(BtakaException::new);
     }
 
     @Override

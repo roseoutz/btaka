@@ -24,8 +24,7 @@ public class BtakaSignUpApiController {
                                 .set("oid", user.getOid())
                                 .set("email", user.getEmail())
                                 .set("userName", user.getUsername())
-                                .build()))
-                );
+                                .build())));
     }
 
     @PostMapping("/check")

@@ -1,6 +1,6 @@
 package com.btaka.domain.study.service.impl;
 
-import com.btaka.board.common.exception.BtakaException;
+import com.btaka.common.exception.BtakaException;
 import com.btaka.common.service.AbstractDataService;
 import com.btaka.constant.BoardErrorCode;
 import com.btaka.domain.study.dto.BoardDevStudyDTO;

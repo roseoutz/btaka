@@ -4,15 +4,10 @@ import com.btaka.board.common.constants.ErrorCode;
 
 import java.util.Arrays;
 
-public enum AuthErrorCode implements ErrorCode {
-    USER_NOT_FOUND("user.not.found"),
-    PASSWORD_IS_EMPTY("password.is.empty"),
-    PASSWORD_NOT_MATCH("password.not.match"),
-    NOT_REGISTER_OAUTH_USER("user.not.register.oauth"),
-    ALREADY_REGISTER_USER("already.register.user")
+public enum ConfigErrorCode implements ErrorCode {
+    CONFIG_KEY_NOT_FOUND("error.config.key.not.found")
     ;
-
-    private AuthErrorCode(String msgCode) {
+    private ConfigErrorCode(String msgCode) {
         this.msgCode = msgCode;
     }
 

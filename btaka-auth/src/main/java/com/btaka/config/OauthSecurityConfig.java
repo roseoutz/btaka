@@ -1,6 +1,5 @@
 package com.btaka.config;
 
-import com.btaka.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,15 +21,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OauthSecurityConfig extends AuthorizationServerConfigurerAdapter {
 
-    private final JwtService jwtService;
-
     private final ReactiveAuthenticationManager reactiveAuthenticationManager;
 
     private final ServerSecurityContextRepository securityContextRepository;
-
-    protected List<String> excludeUrl() {
-        return List.of("");
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

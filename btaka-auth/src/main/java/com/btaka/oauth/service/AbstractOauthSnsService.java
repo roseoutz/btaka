@@ -1,7 +1,7 @@
 package com.btaka.oauth.service;
 
 import com.btaka.board.common.dto.SnsUser;
-import com.btaka.board.common.exception.BtakaException;
+import com.btaka.common.exception.BtakaException;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.domain.service.dto.UserOauthDTO;
@@ -101,7 +101,7 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone))
-                .doOnError(throwable -> new BtakaException(throwable));
+                .doOnError(BtakaException::new);
     }
 
     protected Mono<Map> getUserInfo(Map<String, Object> tokenInfoMap) {
@@ -112,7 +112,7 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                 .retrieve()
                 .bodyToMono(Map.class)
                 .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone))
-                .doOnError(throwable -> new BtakaException(throwable));
+                .doOnError(BtakaException::new);
     }
 
 
@@ -148,7 +148,7 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                             .filter(Objects::nonNull)
                             .then(Mono.just(snsUser))
                 )
-                .doOnError(throwable -> new BtakaException(throwable));
+                .doOnError(BtakaException::new);
     }
 
     @Override
@@ -174,6 +174,6 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                                             .then(Mono.just(snsUser))
                             )
                 )
-                .doOnError(throwable -> new BtakaException(throwable));
+                .doOnError(BtakaException::new);
     }
 }

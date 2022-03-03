@@ -1,6 +1,11 @@
 server:
   port: 13000
 
+btaka:
+  value:
+    jwt:
+      secret: btaka-jwt-service-hahahahahahahaha
+      tokenMaxValidTime: 86400
 
 eureka:
   client:

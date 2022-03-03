@@ -1,4 +1,4 @@
-package com.btaka.board.common.converter;
+package com.btaka.common.converter;
 
 import org.springframework.core.convert.converter.Converter;
 

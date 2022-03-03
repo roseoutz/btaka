@@ -1,12 +1,6 @@
 server:
   port: 11000
 
-btaka:
-  value:
-    jwt:
-      secret: btaka-jwt-service-hahahahahahahaha
-      tokenMaxValidTime: 86400
-
 eureka:
   client:
     register-with-eureka: true
@@ -22,9 +16,27 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: boardDevStudyService
+          uri: lb://BTAKA-BOARD-DEV-STUDY-SERVICE
+          predicates:
+            - Path=/board/dev/**
+          filters:
+            - RewritePath=/board/dev/?(?<path>.*), /api/v1//board/dev/$\{path}
+        - id: authService
+          uri: lb://BTAKA-AUTH-SERVICE
+          predicates:
+            - Path=/auth/**
+          filters:
+            - RewritePath=/auth/?(?<path>.*), /api/v1/auth/$\{path}
         - id: userService
-          uri: lb://BTAKA-USER-SERVICE
+          uri: lb://BTAKA-AUTH-SERVICE
           predicates:
             - Path=/user/**
           filters:
             - RewritePath=/user/?(?<path>.*), /api/v1/user/$\{path}
+        - id: configService
+          uri: lb://BTAKA-CONFIG-SERVICE
+          predicates:
+            - Path=/config/**
+          filters:
+            - RewritePath=/config/?(?<path>.*), /api/v1/config/$\{path}

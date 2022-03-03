@@ -1,7 +1,7 @@
 package com.btaka.oauth.service.impl;
 
 import com.btaka.board.common.dto.SnsUser;
-import com.btaka.board.common.exception.BtakaException;
+import com.btaka.common.exception.BtakaException;
 import com.btaka.config.OauthConfig;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
@@ -89,6 +89,6 @@ public class GithubOauthSnsService extends AbstractOauthSnsService {
                 .header("Authorization", tokenInfoMap.get("token_type") + " " + tokenInfoMap.get("access_token"))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .doOnError(throwable -> new BtakaException(throwable));
+                .doOnError(BtakaException::new);
     }
 }

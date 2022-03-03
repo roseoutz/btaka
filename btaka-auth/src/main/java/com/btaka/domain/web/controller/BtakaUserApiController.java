@@ -31,6 +31,12 @@ public class BtakaUserApiController {
                 .publishOn(Schedulers.single())
                 .map(user -> ResponseEntity.ok(
                         ResponseDTO.builder()
+                                .set("userinfo", user)
+                                .build())
+                )
+                /*
+                .map(user -> ResponseEntity.ok(
+                        ResponseDTO.builder()
                                 .set("oid", user.getOid())
                                 .set("userName", user.getUsername())
                                 .set("email", user.getEmail())
@@ -41,7 +47,7 @@ public class BtakaUserApiController {
                                 .set("addressDetail", user.getAddressDetail())
                                 .set("postNum", user.getPostNum())
                                 .build())
-                )
+                )*/
                 .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)));
         /*
         return Mono.just(webExchange)
@@ -78,8 +84,7 @@ public class BtakaUserApiController {
                                 .set("addressDetail", userInfo.getAddressDetail())
                                 .set("postNum", userInfo.getPostNum())
                                 .build())
-                )
-                .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)));
+                );
     }
 
     @PatchMapping("/chagne/password/{oid}")
@@ -98,7 +103,6 @@ public class BtakaUserApiController {
                                 .set("addressDetail", userInfo.getAddressDetail())
                                 .set("postNum", userInfo.getPostNum())
                                 .build())
-                )
-                .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)));
+                );
     }
 }

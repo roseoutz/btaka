@@ -1,7 +1,7 @@
 package com.btaka.oauth.service.impl;
 
 import com.btaka.board.common.dto.SnsUser;
-import com.btaka.board.common.exception.BtakaException;
+import com.btaka.common.exception.BtakaException;
 import com.btaka.config.OauthConfig;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
@@ -52,7 +52,7 @@ public class GoogleOauthSnsService extends AbstractOauthSnsService {
                 .retrieve()
                 .bodyToMono(Map.class)
                 .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone))
-                .doOnError(throwable -> new BtakaException(throwable));
+                .doOnError(BtakaException::new);
     }
 
     protected String getTokenParamMap(String code, String state, String grantType) {

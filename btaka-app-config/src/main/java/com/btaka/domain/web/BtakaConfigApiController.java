@@ -1,6 +1,8 @@
 package com.btaka.domain.web;
 
 import com.btaka.board.common.dto.ResponseDTO;
+import com.btaka.common.exception.BtakaException;
+import com.btaka.constant.ConfigErrorCode;
 import com.btaka.domain.dto.ConfigDTO;
 import com.btaka.domain.service.ConfigService;
 import org.springframework.http.ResponseEntity;

@@ -9,16 +9,13 @@ import com.btaka.domain.entity.UserEntity;
 import com.btaka.domain.repo.UserRepository;
 import com.btaka.domain.service.UserService;
 import com.btaka.domain.web.dto.SignUpRequestDTO;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
-import java.util.logging.Level;
 
 @Slf4j
 @Service
@@ -93,7 +90,7 @@ public class DefaultUserService extends AbstractDataService<UserEntity, User> im
         return Mono.just(user)
                 .flatMap(inputUser ->
                     userRepository.findById(oid)
-                            .switchIfEmpty(Mono.error(new Exception("user_not_found")))
+                            .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)))
                             .flatMap(userEntity -> {
                                 if (!inputUser.getAddress().equals(userEntity.getAddress())) {
                                     userEntity.setAddress(inputUser.getAddress());
@@ -122,15 +119,14 @@ public class DefaultUserService extends AbstractDataService<UserEntity, User> im
         return Mono.just(user)
                 .flatMap(input ->
                     userRepository.findById(oid)
-                            .switchIfEmpty(Mono.error(new Exception("user_not_found")))
+                            .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND))))
                             .flatMap(entity -> {
                                 if (Objects.isNull(user.getPassword())) {
-                                    return Mono.error(new Exception("password.is.empty"));
+                                    return Mono.error(new BtakaException(AuthErrorCode.PASSWORD_IS_EMPTY));
                                 }
                                 String encPassword =  passwordEncoder.encode(user.getPassword());
                                 entity.setPassword(encPassword);
                                 return Mono.just(toDto(entity));
-                            })
-                );
+                            });
     }
 }

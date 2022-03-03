@@ -1,8 +1,8 @@
 package com.btaka.config;
 
+import com.btaka.common.converter.LocalDateTimeToStringConverter;
+import com.btaka.common.converter.StringToLocalDateTimeConverter;
 import lombok.RequiredArgsConstructor;
-import com.btaka.board.common.converter.StringToLocalDateTimeConverter;
-import com.btaka.board.common.converter.LocalDateTimeToStringConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
