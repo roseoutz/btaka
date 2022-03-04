@@ -50,7 +50,7 @@ public class FacebookOauthSnsService extends AbstractOauthSnsService {
                 .get()
                 .retrieve()
                 .bodyToMono(String.class)
-                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone))
+                .doOnNext(respone -> logger.debug("[BTAKA Oauth Token Response]" + respone))
                 .doOnError(BtakaException::new);
     }
 

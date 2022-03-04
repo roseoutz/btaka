@@ -49,6 +49,11 @@ public class DefaultLoginService implements LoginService {
                             .accessToken(jwtDTO.getAccessToken())
                             .build();
                     return authCacheService.saveAuthInfo(encodeSid, authInfo)
+                            .doOnSuccess(cacheDTO -> webExchange.getResponse().addCookie(
+                                    ResponseCookie
+                                            .from("psid", encodeSid)
+                                            .httpOnly(true)
+                                            .build()))
                             .then(Mono.just(ResponseDTO.builder().set("oid", user.getOid()).set("accessToken", jwtDTO.getAccessToken()).build()));
                 });
     }

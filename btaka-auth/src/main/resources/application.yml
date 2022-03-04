@@ -17,23 +17,23 @@ logging:
 btaka:
   oauth:
     redirect:
-      url: http://localhost:14000/api/v1/sns/result
+      url: http://localhost:3000/our-study/oauth/callback
   social:
     kakao:
-      client-id: 735b21c68f4ab7d810f8ca1e1578e69e
-      client-secret: 9TBmgIcg3GorCALh7tQ6Zc76G5WCXRwo
+      client-id: 71eceb279c8b62a011f4a83cb3a76931
+      client-secret: KMY40epEVg6Fd3Kp0LT647JXDZdooE89
       auth-url: https://kauth.kakao.com/oauth/authorize
       token-url: https://kauth.kakao.com/oauth/token
       user-info-url: https://kapi.kakao.com/v2/user/me
     github:
-      client-id: 4c1db9681216f8ee8dcf
-      client-secret: c9ed0a03221f70a56c3e8c89e59460788ac71983
+      client-id: 87403e9d564ac210baf0
+      client-secret: 69fb9a6445cb5b52658610f697752d88abbb6cc8
       auth-url: https://github.com/login/oauth/authorize
       token-url: https://github.com/login/oauth/access_token
       user-info-url: https://api.github.com/user
     google:
-      client-id: 103151941059-t8461squ0sjjcvp6utkr192p2keke4am.apps.googleusercontent.com
-      client-secret: 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
+      client-id: 698737345461-e9jf18rh2r6mocbjl8a4hgpl0skce0gs.apps.googleusercontent.com
+      client-secret: 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
       auth-url: https://accounts.google.com/o/oauth2/v2/auth
       token-url: https://oauth2.googleapis.com/token
       user-info-url: https://www.googleapis.com/oauth2/v1/userinfo

@@ -20,4 +20,7 @@ public class SnsServiceFactory {
         return serviceMap.getOrDefault(siteName, null);
     }
 
+    public Map<String, OauthSnsService> getAll() {
+        return serviceMap;
+    }
 }

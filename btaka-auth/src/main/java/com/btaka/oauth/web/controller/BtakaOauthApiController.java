@@ -4,6 +4,7 @@ import com.btaka.board.common.dto.ResponseDTO;
 import com.btaka.domain.service.LoginService;
 import com.btaka.domain.web.dto.AuthRequestDTO;
 import com.btaka.oauth.factory.SnsServiceFactory;
+import com.btaka.oauth.service.OauthSnsService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -36,8 +38,19 @@ public class BtakaOauthApiController {
         return Base64.encodeBase64URLSafeString(uuidStr.getBytes(StandardCharsets.UTF_8));
     }
 
+    @GetMapping
+    public Mono<ResponseEntity<ResponseDTO>> allAuthUrl() {
+        return Mono.just(snsServiceFactory.getAll())
+                .publishOn(Schedulers.single())
+                .map(snsServiceMap -> {
+                    ResponseDTO.Builder builder = ResponseDTO.builder();
+                    snsServiceMap.forEach((key, value) -> builder.set(key, value.getAuthUrl(newState(), newNonce())));
+                    return ResponseEntity.ok(builder.build());
+                });
+    }
+
     @GetMapping("/{site}")
-    public Mono<ResponseEntity<ResponseDTO>> index(@PathVariable(name = "site") String site) {
+    public Mono<ResponseEntity<ResponseDTO>> authUrl(@PathVariable(name = "site") String site) {
         return Mono.just(site)
                 .publishOn(Schedulers.single())
                 .map(siteName -> snsServiceFactory.get(site))
@@ -89,10 +102,7 @@ public class BtakaOauthApiController {
                 .filter(Objects::nonNull)
                 .flatMap(snsUser -> loginService.authByOauth(serverWebExchange,
                             AuthRequestDTO.builder().isOauth(true).oauthId(snsUser.getId()).token(snsUser.getToken()).build())
-                            .map(responseDTO -> {
-                                String psid = (String) responseDTO.getDataMap().getOrDefault("psid", "");
-                                return ResponseEntity.ok().header("psid", psid).body(responseDTO);
-                            })
+                            .map(responseDTO -> ResponseEntity.ok().body(responseDTO))
                 )
                 .doOnError(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(throwable.getMessage()));
     }

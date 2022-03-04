@@ -102,7 +102,7 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                 .bodyValue(getTokenParamMap(code, state))
                 .retrieve()
                 .bodyToMono(String.class)
-                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone))
+                .doOnNext(respone -> logger.debug("[BTAKA Oauth Token Response]" + respone))
                 .doOnError(BtakaException::new);
     }
 
@@ -113,7 +113,7 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                 .header("Authorization", tokenInfoMap.get("token_type") + " " + tokenInfoMap.get("access_token"))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone))
+                .doOnNext(respone -> logger.debug("[BTAKA Oauth Token Response]" + respone))
                 .doOnError(BtakaException::new);
     }
 
@@ -138,7 +138,8 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                     Map<String, Object> tokenInfoMap = convertTokenToMap(token);
                     return getUserInfo(tokenInfoMap)
                             .map(map -> convertUserInfo(token, map));
-                });
+                })
+                .doOnError(BtakaException::new);
 
     }
 

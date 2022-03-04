@@ -74,15 +74,7 @@ public class BtakaUserApiController {
                 .publishOn(Schedulers.single())
                 .map(userInfo -> ResponseEntity.ok(
                         ResponseDTO.builder()
-                                .set("oid", userInfo.getOid())
-                                .set("userName", userInfo.getUsername())
-                                .set("email", userInfo.getEmail())
-                                .set("mobile", userInfo.getMobile())
-                                .set("birthdate", userInfo.getBirthdate())
-                                .set("gender", userInfo.getGender())
-                                .set("address", userInfo.getAddress())
-                                .set("addressDetail", userInfo.getAddressDetail())
-                                .set("postNum", userInfo.getPostNum())
+                                .set("userinfo", userInfo)
                                 .build())
                 );
     }
@@ -93,15 +85,7 @@ public class BtakaUserApiController {
                 .publishOn(Schedulers.single())
                 .map(userInfo -> ResponseEntity.ok(
                         ResponseDTO.builder()
-                                .set("oid", userInfo.getOid())
-                                .set("userName", userInfo.getUsername())
-                                .set("email", userInfo.getEmail())
-                                .set("mobile", userInfo.getMobile())
-                                .set("birthdate", userInfo.getBirthdate())
-                                .set("gender", userInfo.getGender())
-                                .set("address", userInfo.getAddress())
-                                .set("addressDetail", userInfo.getAddressDetail())
-                                .set("postNum", userInfo.getPostNum())
+                                .set("userinfo", userInfo)
                                 .build())
                 );
     }

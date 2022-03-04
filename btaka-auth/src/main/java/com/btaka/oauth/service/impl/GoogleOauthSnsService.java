@@ -42,16 +42,18 @@ public class GoogleOauthSnsService extends AbstractOauthSnsService {
         return googleAuthUrl;
     }
 
+    @Override
     protected Mono<Map> getUserInfo(Map<String, Object> tokenInfoMap) {
         return getWebClient(userInfoUrl)
                 .get()
                 .header("Authorization", tokenInfoMap.get("token_type") + " " + tokenInfoMap.get("access_token"))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .doOnNext(respone -> logger.info("[BTAKA Oauth Token Response]" + respone))
+                .doOnNext(respone -> logger.debug("[BTAKA Oauth Token Response]" + respone))
                 .doOnError(BtakaException::new);
     }
 
+    @Override
     protected String getTokenParamMap(String code, String state, String grantType) {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("grant_type", Objects.isNull(grantType) ? "authorization_code": grantType);
@@ -62,7 +64,6 @@ public class GoogleOauthSnsService extends AbstractOauthSnsService {
         paramMap.put("redirect_uri", getRedirectUri());
         return getTokenParamStr(paramMap);
     }
-
 
     @Override
     public String getSite() {

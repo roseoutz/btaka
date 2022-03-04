@@ -51,7 +51,7 @@ public class GithubOauthSnsService extends AbstractOauthSnsService {
         paramMap.put("client_id", getClientId());
         paramMap.put("client_secret", getClientSecret());
         paramMap.put("code", code);
-        // paramMap.put("redirect_uri", getRedirectUri());
+        paramMap.put("redirect_uri", getRedirectUri());
         return getTokenParamStr(paramMap);
     }
 
