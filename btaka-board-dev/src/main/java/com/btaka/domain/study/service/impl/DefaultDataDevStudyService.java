@@ -1,30 +1,26 @@
 package com.btaka.domain.study.service.impl;
 
 import com.btaka.board.common.page.DefaultPageResult;
-import com.btaka.board.common.page.PageResult;
 import com.btaka.common.exception.BtakaException;
 import com.btaka.common.service.AbstractDataService;
 import com.btaka.constant.BoardErrorCode;
 import com.btaka.domain.study.dto.BoardDevStudyDTO;
 import com.btaka.domain.study.entity.BoardDevStudyEntity;
-import com.btaka.domain.study.repo.BoardDevStudyMongoRepository;
+import com.btaka.domain.study.repo.BoardDevStudyJPARepository;
 import com.btaka.domain.study.service.BoardDevStudyService;
 import com.btaka.dto.BoardListResponseDTO;
 import com.btaka.dto.BoardResponseDTO;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
@@ -32,10 +28,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DefaultDataDevStudyService extends AbstractDataService<BoardDevStudyEntity, BoardDevStudyDTO> implements BoardDevStudyService {
 
     @Autowired
-    private BoardDevStudyMongoRepository boardDevStudyMongoRepository;
+    private BoardDevStudyJPARepository boardDevStudyJPARepository;
 
     public DefaultDataDevStudyService() {
         super(BoardDevStudyEntity.class, BoardDevStudyDTO.class);
+    }
+
+    @Override
+    protected BoardDevStudyEntity toEntity(BoardDevStudyDTO dto) {
+        BoardDevStudyEntity entity = modelMapper.map(dto, BoardDevStudyEntity.class);
+        return entity;
+    }
+
+    @Override
+    protected BoardDevStudyDTO toDto(BoardDevStudyEntity entity) {
+        BoardDevStudyDTO dto = modelMapper.map(entity, BoardDevStudyDTO.class);
+        return dto;
     }
 
     @Override
@@ -63,7 +71,7 @@ public class DefaultDataDevStudyService extends AbstractDataService<BoardDevStud
     private Mono<BoardDevStudyEntity> getByOid(String oid) {
         return Mono.just(oid)
                 .publishOn(Schedulers.boundedElastic())
-                .map(postOid -> boardDevStudyMongoRepository.findById(postOid))
+                .map(postOid -> boardDevStudyJPARepository.findById(postOid))
                 .map(optionalEntity -> optionalEntity.orElseThrow(() -> new BtakaException(BoardErrorCode.POST_NOT_FOUND)));
     }
 
@@ -72,7 +80,10 @@ public class DefaultDataDevStudyService extends AbstractDataService<BoardDevStud
         return Mono.just(toEntity(boardDevStudyDTO))
                 .publishOn(Schedulers.boundedElastic())
                 .map(entity -> {
-                    BoardDevStudyEntity savedEntity = boardDevStudyMongoRepository.save(entity);
+                    if (Objects.isNull(entity.getOid())) {
+                        entity.setOid(Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
+                    }
+                    BoardDevStudyEntity savedEntity = boardDevStudyJPARepository.save(entity);
                     return BoardResponseDTO.of(toDto(savedEntity), null);
                 });
     }
@@ -99,7 +110,7 @@ public class DefaultDataDevStudyService extends AbstractDataService<BoardDevStud
                     return boardDevStudyEntity;
                 })
                 .publishOn(Schedulers.boundedElastic())
-                .map(entity -> boardDevStudyMongoRepository.save(entity))
+                .map(entity -> boardDevStudyJPARepository.save(entity))
                 .switchIfEmpty(Mono.error(new BtakaException(BoardErrorCode.POST_NOT_FOUND)));
     }
 
@@ -108,14 +119,14 @@ public class DefaultDataDevStudyService extends AbstractDataService<BoardDevStud
         return Mono.just(oid)
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(postOid -> {
-                    boardDevStudyMongoRepository.deleteById(postOid);
+                    boardDevStudyJPARepository.deleteById(postOid);
                     return Mono.empty();
                 });
     }
 
     @Override
     public Mono<BoardListResponseDTO> list(Pageable pageable) {
-        return Mono.just(boardDevStudyMongoRepository.findAll(pageable))
+        return Mono.just(boardDevStudyJPARepository.findAll(pageable))
                 .publishOn(Schedulers.boundedElastic())
                 .map(pageResult -> {
                     List<BoardDevStudyDTO> boardDevStudyDTOS = new CopyOnWriteArrayList<>();

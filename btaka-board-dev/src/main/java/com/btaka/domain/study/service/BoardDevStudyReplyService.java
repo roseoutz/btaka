@@ -11,6 +11,8 @@ public interface BoardDevStudyReplyService {
 
     Mono<List<BoardDevStudyReplyDTO>> get(@NonNull String postOid);
 
+    Mono<BoardDevStudyReplyDTO> getOne(String oid, String postOid);
+
     Mono<List<BoardDevStudyReplyDTO>> add(BoardDevStudyReplyDTO dto);
 
     Mono<BoardDevStudyDTO> update(BoardDevStudyReplyDTO dto);

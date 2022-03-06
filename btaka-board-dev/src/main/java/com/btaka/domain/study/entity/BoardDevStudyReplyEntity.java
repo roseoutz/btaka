@@ -3,41 +3,36 @@ package com.btaka.domain.study.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.LocalDateTime;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document("btaka_board_dev_study_reply")
-public class BoardDevStudyReplyEntity {
+@Entity(name = "btaka_board_dev_study_reply")
+public class BoardDevStudyReplyEntity extends AbstractJPAEntity {
 
     @Id
     private String oid;
 
-    @Indexed
-    @DBRef
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post")
     private BoardDevStudyEntity post;
 
-    @Indexed
-    @DBRef
+    private String postOid;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent")
     private BoardDevStudyReplyEntity parent;
+
+    private String parentOid;
+
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    private List<BoardDevStudyReplyEntity> children = new ArrayList<>();
 
     private String reply ;
 
     private int likes;
 
-    private String insertUser;
-
-    @CreatedDate
-    private LocalDateTime insertTime;
-
-    @LastModifiedDate
-    private LocalDateTime updateTime;
 }

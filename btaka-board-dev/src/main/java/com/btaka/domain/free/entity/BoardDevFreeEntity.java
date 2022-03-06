@@ -1,22 +1,18 @@
 package com.btaka.domain.free.entity;
 
+import com.btaka.domain.study.entity.AbstractJPAEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document("btaka_board_dev_free")
-public class BoardDevFreeEntity {
+@Entity(name = "btaka_board_dev_free")
+public class BoardDevFreeEntity extends AbstractJPAEntity {
 
     @Id
     private String oid;
@@ -25,13 +21,7 @@ public class BoardDevFreeEntity {
 
     private String contents;
 
-    private List<String> hashTags = new ArrayList<>();
+    private String hashTags;
 
     private String insertUser;
-
-    @CreatedDate
-    private LocalDateTime insertTime;
-
-    @LastModifiedDate
-    private LocalDateTime updateTime;
 }

@@ -14,7 +14,7 @@ public abstract class AbstractDataService<T, D> {
     }
 
     @Autowired
-    private ModelMapper modelMapper;
+    protected ModelMapper modelMapper;
 
     protected T toEntity(D dto) {
         return modelMapper.map(dto, entityClass);

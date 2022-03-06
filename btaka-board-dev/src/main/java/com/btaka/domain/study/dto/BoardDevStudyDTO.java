@@ -18,7 +18,7 @@ public class BoardDevStudyDTO {
     private String repository;
     private String workspace;
     private String contact;
-    private List<String> hashTags;
+    private String hashTags;
     private boolean isRecruiting;
     private int likes;
     private int views;

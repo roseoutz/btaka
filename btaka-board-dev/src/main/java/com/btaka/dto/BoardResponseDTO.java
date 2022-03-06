@@ -35,6 +35,10 @@ public class BoardResponseDTO  {
         return new BoardResponseDTO(true, null, null, 200, board, pageResult);
     }
 
+    public static BoardResponseDTO of(PageResult<BoardDevStudyReplyDTO> pageResult) {
+        return new BoardResponseDTO(true, null, null, 200, null, pageResult);
+    }
+
     public static Builder builder() {
         return new Builder();
     }
