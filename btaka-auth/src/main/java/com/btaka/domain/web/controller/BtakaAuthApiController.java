@@ -23,6 +23,7 @@ public class BtakaAuthApiController {
 
     @PostMapping("/process")
     public Mono<ResponseEntity<ResponseDTO>> auth(@CookieValue(value = "psid", required = false) String sessionId, @RequestBody AuthRequestDTO authRequestDTO, ServerWebExchange webExchange) {
+        /*
         return loginService.isLogin(sessionId)
                 .publishOn(Schedulers.single())
                 .filter(ResponseDTO::isSuccess)
@@ -32,6 +33,12 @@ public class BtakaAuthApiController {
                         .flatMap(dto -> loginService.auth(webExchange, authRequestDTO)
                                 .map(responseDTO -> ResponseEntity.ok().body(responseDTO))
                         )
+                );
+        */
+        return Mono.just(authRequestDTO)
+                .filter(dto -> !StringUtil.isNullOrEmpty(dto.getEmail()) || !StringUtil.isNullOrEmpty(dto.getPassword()))
+                .flatMap(dto -> loginService.auth(webExchange, authRequestDTO)
+                        .map(responseDTO -> ResponseEntity.ok().body(responseDTO))
                 );
     }
 

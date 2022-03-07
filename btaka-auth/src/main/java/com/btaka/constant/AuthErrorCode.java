@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 public enum AuthErrorCode implements ErrorCode {
     USER_NOT_FOUND("user.not.found"),
+    USER_LOCKED("user.locked"),
     PASSWORD_IS_EMPTY("password.is.empty"),
     PASSWORD_NOT_MATCH("password.not.match"),
     NOT_REGISTER_OAUTH_USER("user.not.register.oauth"),

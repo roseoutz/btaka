@@ -24,12 +24,18 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Slf4j
 @Service("defaultLoginService")
 @RequiredArgsConstructor
 public class DefaultLoginService implements LoginService {
+
+    // todo
+    // config server로 이전 해야한다.
+    private final int MAX_FAIL_COUNT = 5;
+    private final long LOCK_PERIOD = 60 * 5;
 
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
@@ -68,11 +74,56 @@ public class DefaultLoginService implements LoginService {
                 })
     }
 */
+    protected boolean validateUser(AuthRequestDTO authRequestDTO, User user) {
+
+        if (user.isLocked()) {
+            LocalDateTime lockedTime = user.getLockedTime();
+            LocalDateTime unlockTime = lockedTime.plusSeconds(LOCK_PERIOD);
+            if (lockedTime.isAfter(unlockTime)) {
+                unLockUser(user);
+            } else {
+                throw new BtakaException(AuthErrorCode.USER_LOCKED);
+            }
+        }
+
+        if (!checkPassword(authRequestDTO.getPassword(), user.getPassword())) {
+
+            if (user.getFailCount() + 1 >= MAX_FAIL_COUNT) {
+                lockUser(user);
+                throw new BtakaException(AuthErrorCode.USER_LOCKED);
+            }
+            addFailCount(user);
+            throw new BtakaException(AuthErrorCode.PASSWORD_NOT_MATCH);
+        }
+        loginSuccess(user);
+        return true;
+    }
+
+    protected boolean checkPassword(String inputPassword, String savedPassword) {
+        return passwordEncoder.matches(inputPassword, savedPassword);
+    }
+
+    protected void lockUser(User user) {
+        userService.lockUser(user, true).subscribe();
+    }
+
+    protected void unLockUser(User user) {
+        userService.lockUser(user, false).subscribe();
+    }
+
+    protected void addFailCount(User user) {
+        userService.loginFail(user).subscribe();
+    }
+
+    protected void loginSuccess(User user) {
+        userService.loginSuccess(user).subscribe();
+    }
+
     @Override
     public Mono<ResponseDTO> auth(ServerWebExchange webExchange, AuthRequestDTO authRequestDTO) {
         return userService.findByEmail(authRequestDTO.getEmail())
                 .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)))
-                .filter(user -> passwordEncoder.matches(authRequestDTO.getPassword(), user.getPassword()))
+                .filter(user -> validateUser(authRequestDTO, user))
                 .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.PASSWORD_NOT_MATCH)))
                 .flatMap(user -> this.processLogin(user, webExchange))
                 .onErrorResume(throwable ->
@@ -99,7 +150,9 @@ public class DefaultLoginService implements LoginService {
             return Mono.just(ResponseDTO.builder().success(true).set("isLogin", false).build());
         }
         return authCacheService.isLogin(psid)
-                .filter(authCacheDTO -> !Objects.isNull(authCacheDTO.getSid()))
+                .filter(authCacheDTO -> {
+                    return !Objects.isNull(authCacheDTO) && !Objects.isNull(authCacheDTO.getSid());
+                })
                 .flatMap(authCacheDTO -> Mono.just(ResponseDTO.builder().set("userId", authCacheDTO.getAuthInfo().getUserId()).set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build()))
                 .switchIfEmpty(Mono.just(ResponseDTO.builder().success(false).build()));
     }

@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Slf4j
@@ -128,5 +129,33 @@ public class DefaultUserService extends AbstractDataService<UserEntity, User> im
                                 entity.setPassword(encPassword);
                                 return Mono.just(toDto(entity));
                             });
+    }
+
+    @Override
+    public Mono<Boolean> lockUser(User user, boolean isLock) {
+        UserEntity entity = toEntity(user);
+        if (isLock) {
+            entity.setLockedTime(LocalDateTime.now());
+        }
+        entity.setLocked(isLock);
+        return userRepository.save(entity)
+                .then(Mono.just(true));
+    }
+
+    @Override
+    public Mono<Boolean> loginFail(User user) {
+        UserEntity entity = toEntity(user);
+        entity.setFailCount(entity.getFailCount() + 1);
+        return userRepository.save(entity)
+                .then(Mono.just(true));
+    }
+
+    @Override
+    public Mono<Boolean> loginSuccess(User user) {
+        UserEntity entity = toEntity(user);
+        entity.setLocked(false);
+        entity.setFailCount(0);
+        return userRepository.save(entity)
+                .then(Mono.just(true));
     }
 }
