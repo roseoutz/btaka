@@ -36,9 +36,12 @@ public class BtakaAuthApiController {
     }
 
 
-    @PostMapping("/logout")
-    public Mono<ResponseEntity> logout() {
-        return Mono.just(ResponseEntity.of(null));
+    @GetMapping ("/logout")
+    public Mono<ResponseEntity<ResponseDTO>> logout(@CookieValue(value = "psid", required = false) String sessionId, ServerWebExchange webExchange) {
+        return loginService.logout(sessionId, webExchange)
+                .flatMap(responseDTO ->
+                        Mono.just(ResponseEntity.ok(responseDTO))
+                );
     }
 
     @GetMapping("/")

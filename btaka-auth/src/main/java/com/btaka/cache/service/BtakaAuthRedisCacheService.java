@@ -48,4 +48,15 @@ public class BtakaAuthRedisCacheService extends AbstractRedisCacheService<String
                 .map(this::toDto))
                 .orElseGet(() -> Mono.just(new AuthCacheDTO()));
     }
+
+    @Override
+    public Mono<Boolean> expireToken(String sessionId) {
+
+        return Mono.just(sessionId)
+                .publishOn(Schedulers.boundedElastic())
+                .flatMap(sid -> {
+                    authRedisCacheRepository.deleteBySid(sid);
+                    return Mono.just(true);
+                });
+    }
 }

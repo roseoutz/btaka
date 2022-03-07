@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BtakaAuthRedisCacheRepository extends RedisCacheRepository<AuthCacheEntity, String> {
+
+    void deleteBySid(String sid);
 }

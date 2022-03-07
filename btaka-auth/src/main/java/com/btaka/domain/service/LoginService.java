@@ -13,4 +13,6 @@ public interface LoginService {
 
     Mono<ResponseDTO> isLogin(String psid);
 
+    Mono<ResponseDTO> logout(String psid, ServerWebExchange webExchange);
+
 }

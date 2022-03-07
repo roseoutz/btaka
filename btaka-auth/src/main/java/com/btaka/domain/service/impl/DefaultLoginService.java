@@ -94,4 +94,12 @@ public class DefaultLoginService implements LoginService {
                 .switchIfEmpty(Mono.just(ResponseDTO.builder().success(false).build()));
     }
 
+    @Override
+    public Mono<ResponseDTO> logout(String psid, ServerWebExchange webExchange) {
+        return authCacheService.expireToken(psid)
+                .flatMap(isSuccess -> {
+                    webExchange.getRequest().getCookies().remove("psid");
+                });
+    }
+
 }
