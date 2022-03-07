@@ -11,5 +11,7 @@ public interface AuthCacheService extends RedisCacheService<AuthCacheDTO, String
 
     Mono<AuthCacheDTO> isLogin(String sessionId);
 
+    Mono<AuthCacheDTO> isTokenAvailable(String accessToken);
+
     Mono<Boolean> expireToken(String sessionId);
 }

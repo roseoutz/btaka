@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,6 +28,10 @@ public class UserEntity {
     private String password;
     @NonNull
     private String mobile;
+
+    private int failCount;
+    private boolean isLocked;
+    private LocalDateTime lockedTime;
 
     private String birthdate;
     private String gender;

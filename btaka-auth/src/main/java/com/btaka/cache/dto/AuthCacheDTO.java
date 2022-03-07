@@ -12,6 +12,8 @@ public class AuthCacheDTO {
 
     private String sid;
 
+    private String accessToken;
+
     private AuthInfo authInfo;
 
 }

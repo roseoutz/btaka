@@ -45,13 +45,12 @@ public class BtakaAuthApiController {
     }
 
     @GetMapping("/")
-    public Mono<ResponseEntity<ResponseDTO>> isLogin(@CookieValue(value = "psid", required = false) String sessionId) {
-        return Mono.just(sessionId)
-                .filter(psid -> !Objects.isNull(psid))
-                .flatMap(psid -> loginService.isLogin(psid)
-                            .map(ResponseEntity::ok)
-                )
+    public Mono<ResponseEntity<ResponseDTO>> isLogin(
+            @CookieValue(value = "psid", required = false) String sessionId,
+            @RequestHeader(value = "Authorization", required = false) String token
+    ) {
+        return loginService.isLogin(sessionId, token)
+                .map(responseDto -> ResponseEntity.ok(responseDto))
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
-
     }
 }

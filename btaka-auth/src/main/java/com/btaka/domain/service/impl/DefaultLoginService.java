@@ -5,7 +5,9 @@ import com.btaka.board.common.dto.User;
 import com.btaka.cache.dto.AuthInfo;
 import com.btaka.cache.service.AuthCacheService;
 import com.btaka.common.exception.BtakaException;
+import com.btaka.common.service.AbstractDataService;
 import com.btaka.constant.AuthErrorCode;
+import com.btaka.domain.entity.UserEntity;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.domain.web.dto.AuthRequestDTO;
@@ -16,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
@@ -35,6 +36,7 @@ public class DefaultLoginService implements LoginService {
     private final UserService userService;
     private final UserOauthService userOauthService;
     private final AuthCacheService authCacheService;
+
 
     protected Mono<ResponseDTO> processLogin(User user, ServerWebExchange webExchange) {
         return Mono.just(user)
@@ -58,6 +60,14 @@ public class DefaultLoginService implements LoginService {
                 });
     }
 
+    /*protected Mono<ResponseDTO> loginFail(User user) {
+        return Mono.just(user)
+                .flatMap(dto -> {
+                    int failCount = user.getFailCount();
+
+                })
+    }
+*/
     @Override
     public Mono<ResponseDTO> auth(ServerWebExchange webExchange, AuthRequestDTO authRequestDTO) {
         return userService.findByEmail(authRequestDTO.getEmail())
@@ -86,7 +96,7 @@ public class DefaultLoginService implements LoginService {
     @Override
     public Mono<ResponseDTO> isLogin(String psid) {
         if (Objects.isNull(psid)) {
-            return Mono.just(ResponseDTO.builder().success(false).build());
+            return Mono.just(ResponseDTO.builder().success(true).set("isLogin", false).build());
         }
         return authCacheService.isLogin(psid)
                 .filter(authCacheDTO -> !Objects.isNull(authCacheDTO.getSid()))
@@ -95,10 +105,25 @@ public class DefaultLoginService implements LoginService {
     }
 
     @Override
-    public Mono<ResponseDTO> logout(String psid, ServerWebExchange webExchange) {
+    public Mono<ResponseDTO> isLogin(String psid, String accessToken) {
+        if (!Objects.isNull(accessToken) && jwtService.isValidToken(accessToken)) {
+            return Mono.just(accessToken)
+                    .flatMap(token ->
+                        authCacheService.isTokenAvailable(accessToken)
+                                .filter(dto -> !Objects.isNull(dto))
+                                .flatMap(authCacheDTO -> Mono.just(ResponseDTO.builder().set("userId", authCacheDTO.getAuthInfo().getUserId()).set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build()))
+                    );
+        }
+        return isLogin(psid);
+    }
+
+    @Override
+    public Mono<ResponseDTO>  logout(String psid, ServerWebExchange webExchange) {
         return authCacheService.expireToken(psid)
                 .flatMap(isSuccess -> {
-                    webExchange.getRequest().getCookies().remove("psid");
+                    webExchange.getResponse().getCookies().clear();
+                    webExchange.getResponse().getHeaders().clear();
+                    return Mono.just(ResponseDTO.builder().build());
                 });
     }
 

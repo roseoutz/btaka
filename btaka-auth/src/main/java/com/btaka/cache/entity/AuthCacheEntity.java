@@ -14,6 +14,8 @@ public class AuthCacheEntity implements Serializable {
     @Id
     private String sid;
 
+    private String accessToken;
+
     private AuthInfo authInfo;
 
 

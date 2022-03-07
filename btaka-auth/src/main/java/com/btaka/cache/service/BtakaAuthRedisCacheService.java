@@ -30,10 +30,19 @@ public class BtakaAuthRedisCacheService extends AbstractRedisCacheService<String
         return authRedisCacheRepository;
     }
 
+    protected Mono<AuthCacheDTO> checkAuthInfo(Optional<AuthCacheEntity> authCacheEntity) {
+        return authCacheEntity.map(cacheEntity -> Mono.just(cacheEntity)
+                        .filter(entity -> LocalDateTime.now().isBefore(entity.getAuthInfo().getExpiredAt()))
+                        .map(this::toDto)
+                )
+                .orElseGet(() -> null);
+    }
+
     @Transactional
     @Override
     public Mono<AuthCacheDTO> saveAuthInfo(String sessionId, AuthInfo authInfo) {
-        AuthCacheEntity savedCacheEntity = authRedisCacheRepository.save(toEntity(AuthCacheDTO.builder().authInfo(authInfo).sid(sessionId).build()));
+
+        AuthCacheEntity savedCacheEntity = authRedisCacheRepository.save(toEntity(AuthCacheDTO.builder().accessToken(authInfo.getAccessToken()).authInfo(authInfo).sid(sessionId).build()));
 
 
         return Mono.just(toDto(savedCacheEntity));
@@ -43,10 +52,13 @@ public class BtakaAuthRedisCacheService extends AbstractRedisCacheService<String
     public Mono<AuthCacheDTO> isLogin(String sessionId) {
         Optional<AuthCacheEntity> authCacheEntity = authRedisCacheRepository.findById(sessionId);
 
-        return authCacheEntity.map(cacheEntity -> Mono.just(cacheEntity)
-                .filter(entity -> LocalDateTime.now().isBefore(entity.getAuthInfo().getExpiredAt()))
-                .map(this::toDto))
-                .orElseGet(() -> Mono.just(new AuthCacheDTO()));
+        return checkAuthInfo(authCacheEntity);
+    }
+
+    @Override
+    public Mono<AuthCacheDTO> isTokenAvailable(String accessToken) {
+        Optional<AuthCacheEntity> authCacheEntity = authRedisCacheRepository.findByAccessToken(accessToken);
+        return checkAuthInfo(authCacheEntity);
     }
 
     @Override
@@ -55,7 +67,7 @@ public class BtakaAuthRedisCacheService extends AbstractRedisCacheService<String
         return Mono.just(sessionId)
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(sid -> {
-                    authRedisCacheRepository.deleteBySid(sid);
+                    authRedisCacheRepository.deleteById(sid);
                     return Mono.just(true);
                 });
     }
