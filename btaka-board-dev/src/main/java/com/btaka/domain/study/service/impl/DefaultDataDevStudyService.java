@@ -34,6 +34,8 @@ public class DefaultDataDevStudyService extends AbstractDataService<BoardDevStud
         super(BoardDevStudyEntity.class, BoardDevStudyDTO.class);
     }
 
+
+
     @Override
     protected BoardDevStudyEntity toEntity(BoardDevStudyDTO dto) {
         BoardDevStudyEntity entity = modelMapper.map(dto, BoardDevStudyEntity.class);
@@ -81,7 +83,7 @@ public class DefaultDataDevStudyService extends AbstractDataService<BoardDevStud
                 .publishOn(Schedulers.boundedElastic())
                 .map(entity -> {
                     if (Objects.isNull(entity.getOid())) {
-                        entity.setOid(Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
+                        entity.setOid(getUUID());
                     }
                     BoardDevStudyEntity savedEntity = boardDevStudyJPARepository.save(entity);
                     return BoardResponseDTO.of(toDto(savedEntity), null);

@@ -39,7 +39,7 @@ public class BoardDevStudyEntity extends AbstractJPAEntity {
     private int views;
 
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "oid")
+    @JoinColumn(name = "reply_oid")
     private List<BoardDevStudyReplyEntity> reply = new ArrayList<>();
 
 }

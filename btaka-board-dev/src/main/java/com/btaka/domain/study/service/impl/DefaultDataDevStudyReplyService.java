@@ -1,8 +1,11 @@
 package com.btaka.domain.study.service.impl;
 
+import com.btaka.common.exception.BtakaException;
 import com.btaka.common.service.AbstractDataService;
+import com.btaka.constant.BoardErrorCode;
 import com.btaka.domain.study.dto.BoardDevStudyDTO;
 import com.btaka.domain.study.dto.BoardDevStudyReplyDTO;
+import com.btaka.domain.study.entity.BoardDevStudyEntity;
 import com.btaka.domain.study.entity.BoardDevStudyReplyEntity;
 import com.btaka.domain.study.repo.BoardDevStudyJPARepository;
 import com.btaka.domain.study.repo.BoardDevStudyReplyJPARepository;
@@ -19,6 +22,7 @@ import reactor.core.scheduler.Schedulers;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
@@ -42,15 +46,28 @@ public class DefaultDataDevStudyReplyService extends AbstractDataService<BoardDe
 
     @Override
     protected BoardDevStudyReplyEntity toEntity(BoardDevStudyReplyDTO dto) {
-        BoardDevStudyReplyEntity entity = modelMapper.map(BoardDevStudyReplyDTO.class, BoardDevStudyReplyEntity.class);
+        BoardDevStudyReplyEntity entity = modelMapper.map(dto, BoardDevStudyReplyEntity.class);
         return entity;
+    }
+
+    @Override
+    protected BoardDevStudyReplyDTO toDto(BoardDevStudyReplyEntity entity) {
+        BoardDevStudyReplyDTO replyDTO = BoardDevStudyReplyDTO.builder()
+                .oid(entity.getOid())
+                .reply(entity.getReply())
+                .likes(entity.getLikes())
+                .insertTime(entity.getInsertTime())
+                .insertUser(entity.getInsertUser())
+                .updateTime(entity.getUpdateTime())
+                .build();
+        return replyDTO;
     }
 
     @Override
     public Mono<List<BoardDevStudyReplyDTO>> get(@NonNull String postOid) {
         return Mono.just(postOid)
                 .filter(oid -> !Objects.isNull(oid))
-                .flatMap(oid -> Mono.just(replyJPARepository.findAllByPostOid(oid))
+                .flatMap(oid -> Mono.just(replyJPARepository.findWithByInsertUserAndParentByPostOidAscNullsFirstReplyInsertTimeAsc(oid))
                         .publishOn(Schedulers.boundedElastic())
                         .map(replyEntities -> {
                             List<BoardDevStudyReplyDTO> replyDTOS = new CopyOnWriteArrayList<>();
@@ -71,15 +88,24 @@ public class DefaultDataDevStudyReplyService extends AbstractDataService<BoardDe
     @Override
     public Mono<List<BoardDevStudyReplyDTO>> add(BoardDevStudyReplyDTO boardDevStudyReplyDTO) {
         return Mono.just(toEntity(boardDevStudyReplyDTO))
-                .filter(entity -> entity.getParent() != null)
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(entity -> {
-                    boardDevStudyJPARepository.findById(entity.getPostOid()).ifPresent(board -> entity.setPost(board));
-                    if (!Objects.isNull(entity.getParentOid())) {
-                        replyJPARepository.findById(entity.getParentOid()).ifPresent(reply -> entity.setParent(reply));
+                    if (Objects.isNull(entity.getPostTargetOid())) {
+                        return Mono.error(new BtakaException(BoardErrorCode.POST_NOT_FOUND));
                     }
+
+                    Optional<BoardDevStudyEntity> optionalBoardDevStudyEntity = boardDevStudyJPARepository.findById(entity.getPostTargetOid());
+                    if (!optionalBoardDevStudyEntity.isPresent()) {
+                        return Mono.error(new BtakaException(BoardErrorCode.POST_NOT_FOUND));
+                    }
+                    entity.setPost(optionalBoardDevStudyEntity.get());
+
+                    if (!Objects.isNull(entity.getParentTargetOid())) {
+                        replyJPARepository.findById(entity.getParentTargetOid()).ifPresent(reply -> entity.setParent(reply));
+                    }
+                    entity.setOid(getUUID());
                     return Mono.just(replyJPARepository.save(entity))
-                            .flatMap(savedEntity -> get(savedEntity.getPostOid()));
+                            .flatMap(savedEntity -> get(savedEntity.getPostTargetOid()));
                 });
     }
 

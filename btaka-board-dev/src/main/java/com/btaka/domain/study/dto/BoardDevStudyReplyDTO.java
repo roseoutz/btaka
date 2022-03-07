@@ -13,9 +13,9 @@ public class BoardDevStudyReplyDTO {
 
     private String oid;
     private BoardDevStudyDTO post;
-    private String postOid;
+    private String postTargetOid;
     private BoardDevStudyReplyDTO parent;
-    private String parentOid;
+    private String parentTargetOid;
     private String reply ;
     private int likes;
     private String insertUser;

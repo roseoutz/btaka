@@ -17,16 +17,16 @@ public class BoardDevStudyReplyEntity extends AbstractJPAEntity {
     private String oid;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post")
+    @JoinColumn(name = "post_oid")
     private BoardDevStudyEntity post;
 
-    private String postOid;
+    private String postTargetOid;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent")
+    @JoinColumn(name = "parent_oid")
     private BoardDevStudyReplyEntity parent;
 
-    private String parentOid;
+    private String parentTargetOid;
 
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
     private List<BoardDevStudyReplyEntity> children = new ArrayList<>();

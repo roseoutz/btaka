@@ -27,7 +27,6 @@ public class BoardDevStudyReplyApiController {
     @PostMapping("/")
     public Mono<ResponseEntity<BoardResponseDTO>> add(@RequestBody BoardDevStudyReplyDTO dto) {
         return Mono.just(dto)
-                .filter(replyDto -> Objects.isNull(dto.getParentOid()))
                 .flatMap(boardDto ->
                         boardDevStudyReplyService.add(dto)
                                 .map(boardStudyReplyDTOS -> BoardResponseDTO.of(DefaultPageResult.of(boardStudyReplyDTOS)))

@@ -1,13 +1,13 @@
 package com.btaka.domain.study.entity;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import lombok.Getter;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import java.time.LocalDateTime;
 
+@Getter
 @MappedSuperclass
 public abstract class AbstractJPAEntity {
 
