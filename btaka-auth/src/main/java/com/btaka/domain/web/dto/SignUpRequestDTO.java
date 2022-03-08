@@ -23,7 +23,7 @@ public class SignUpRequestDTO implements Serializable {
 
     @NonNull
     @NotEmpty(message = "{btaka.sign.up.username.empty}")
-    private String userName;
+    private String username;
 
     @NonNull
     @NotEmpty(message = "{btaka.sign.up.mobile.empty}")

@@ -23,7 +23,7 @@ public class BtakaSignUpApiController {
                 .flatMap(user -> Mono.just(ResponseEntity.ok(ResponseDTO.builder()
                                 .set("oid", user.getOid())
                                 .set("email", user.getEmail())
-                                .set("userName", user.getUsername())
+                                .set("username", user.getUsername())
                                 .build())));
     }
 

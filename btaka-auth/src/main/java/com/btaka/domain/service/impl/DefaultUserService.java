@@ -55,7 +55,7 @@ public class DefaultUserService extends AbstractDataService<UserEntity, User> im
 
                     UserEntity user = UserEntity.builder()
                             .email(requestDTO.getEmail())
-                            .username(requestDTO.getUserName())
+                            .username(requestDTO.getUsername())
                             .password(encPassword)
                             .mobile(requestDTO.getMobile())
                             .birthdate(requestDTO.getBirthdate())
