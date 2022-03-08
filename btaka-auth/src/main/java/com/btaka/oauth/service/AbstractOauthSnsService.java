@@ -2,6 +2,7 @@ package com.btaka.oauth.service;
 
 import com.btaka.board.common.dto.SnsUser;
 import com.btaka.common.exception.BtakaException;
+import com.btaka.constant.AuthParamConst;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.domain.service.dto.UserOauthDTO;
@@ -59,11 +60,12 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
 
     protected String getTokenParamMap(String code, String state, String grantType) {
         Map<String, String> paramMap = new HashMap<>();
-        paramMap.put("grant_type",Objects.isNull(grantType) ? "authorization_code": grantType);
-        paramMap.put("client_id", getClientId());
-        paramMap.put("client_secret", getClientSecret());
-        paramMap.put("code", code);
-        if (!Objects.isNull(state)) paramMap.put("state", state);
+        paramMap.put(AuthParamConst.PARAM_OAUTH_GRANT_TYPE.getKey(), Objects.isNull(grantType) ? "authorization_code": grantType);
+        paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_ID.getKey(), getClientId());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_SECRET.getKey(), getClientSecret());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_AUTHORIZATION_CODE.getKey(), code);
+        paramMap.put(AuthParamConst.PARAM_OAUTH_REDIRECT_URL.getKey(), getRedirectUri());
+        if (!Objects.isNull(state)) paramMap.put(AuthParamConst.PARAM_OAUTH_STATE.getKey(), state);
         // paramMap.put("redirect_uri", getRedirectUri());
         return getTokenParamStr(paramMap);
     }
@@ -110,7 +112,10 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
         return getWebClient(userInfoUrl)
                 .post()
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", tokenInfoMap.get("token_type") + " " + tokenInfoMap.get("access_token"))
+                .header(
+                        AuthParamConst.PARAM_OAUTH_HEADER_TOKEN_KEY.getKey(),
+                        tokenInfoMap.get(AuthParamConst.PARAM_OAUTH_TOKEN_TYPE.getKey()) + " " + tokenInfoMap.get(AuthParamConst.PARAM_OAUTH_ACCESS_TOKEN.getKey())
+                )
                 .retrieve()
                 .bodyToMono(Map.class)
                 .doOnNext(respone -> logger.debug("[BTAKA Oauth Token Response]" + respone))
@@ -159,6 +164,9 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
         return getUserInfo(authCode, state);
     }
 
+    /*
+    * todo Register 전에 등록된 사용자인지 확인해봐야한다.
+     */
     @Override
     public Mono<SnsUser> register(String userOid, String code, String state, String nonce) {
         return userInfo(code, state, nonce)

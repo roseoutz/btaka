@@ -7,6 +7,8 @@ import com.btaka.cache.service.AuthCacheService;
 import com.btaka.common.exception.BtakaException;
 import com.btaka.common.service.AbstractDataService;
 import com.btaka.constant.AuthErrorCode;
+import com.btaka.constant.AuthParamConst;
+import com.btaka.constant.UserParamConst;
 import com.btaka.domain.entity.UserEntity;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
@@ -59,10 +61,15 @@ public class DefaultLoginService implements LoginService {
                     return authCacheService.saveAuthInfo(encodeSid, authInfo)
                             .doOnSuccess(cacheDTO -> webExchange.getResponse().addCookie(
                                     ResponseCookie
-                                            .from("psid", encodeSid)
+                                            .from(AuthParamConst.PARAM_AUTH_SESSION_ID.getKey(), encodeSid)
                                             .httpOnly(true)
                                             .build()))
-                            .then(Mono.just(ResponseDTO.builder().set("oid", user.getOid()).set("accessToken", jwtDTO.getAccessToken()).build()));
+                            .then(Mono.just(ResponseDTO
+                                    .builder()
+                                    .set(UserParamConst.PARAM_USER_OBJECT_ID.getKey(), user.getOid())
+                                    .set(AuthParamConst.PARAM_AUTH_ACCESS_TOKEN.getKey(), jwtDTO.getAccessToken())
+                                    .build())
+                            );
                 });
     }
 
@@ -147,13 +154,19 @@ public class DefaultLoginService implements LoginService {
     @Override
     public Mono<ResponseDTO> isLogin(String psid) {
         if (Objects.isNull(psid)) {
-            return Mono.just(ResponseDTO.builder().success(true).set("isLogin", false).build());
+            return Mono.just(ResponseDTO
+                    .builder()
+                    .success(true)
+                    .set(AuthParamConst.PARAM_AUTH_IS_LOGIN.getKey(), false)
+                    .build());
         }
         return authCacheService.isLogin(psid)
-                .filter(authCacheDTO -> {
-                    return !Objects.isNull(authCacheDTO) && !Objects.isNull(authCacheDTO.getSid());
-                })
-                .flatMap(authCacheDTO -> Mono.just(ResponseDTO.builder().set("userId", authCacheDTO.getAuthInfo().getUserId()).set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build()))
+                .filter(authCacheDTO -> !Objects.isNull(authCacheDTO) && !Objects.isNull(authCacheDTO.getSid()))
+                .flatMap(authCacheDTO -> Mono.just(ResponseDTO
+                        .builder()
+                        .set(UserParamConst.PARAM_USER_ID.getKey(), authCacheDTO.getAuthInfo().getUserId())
+                        .set(AuthParamConst.PARAM_AUTH_ACCESS_TOKEN.getKey(), authCacheDTO.getAuthInfo().getAccessToken())
+                        .build()))
                 .switchIfEmpty(Mono.just(ResponseDTO.builder().success(false).build()))
                 .onErrorResume(throwable ->
                         Mono.error(new BtakaException(HttpStatus.INTERNAL_SERVER_ERROR, throwable))
@@ -167,7 +180,12 @@ public class DefaultLoginService implements LoginService {
                     .flatMap(token ->
                         authCacheService.isTokenAvailable(accessToken)
                                 .filter(dto -> !Objects.isNull(dto))
-                                .flatMap(authCacheDTO -> Mono.just(ResponseDTO.builder().set("userId", authCacheDTO.getAuthInfo().getUserId()).set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build()))
+                                .flatMap(authCacheDTO -> Mono.just(ResponseDTO
+                                        .builder()
+                                        .set(UserParamConst.PARAM_USER_ID.getKey(), authCacheDTO.getAuthInfo().getUserId())
+                                        .set(AuthParamConst.PARAM_AUTH_ACCESS_TOKEN.getKey(), authCacheDTO.getAuthInfo().getAccessToken())
+                                        .build())
+                                )
                     )
                     .onErrorResume(throwable ->
                             Mono.error(new BtakaException(HttpStatus.INTERNAL_SERVER_ERROR, throwable))

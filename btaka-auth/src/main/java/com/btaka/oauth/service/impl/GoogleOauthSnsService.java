@@ -3,10 +3,13 @@ package com.btaka.oauth.service.impl;
 import com.btaka.board.common.dto.SnsUser;
 import com.btaka.common.exception.BtakaException;
 import com.btaka.config.OauthConfig;
+import com.btaka.constant.AuthParamConst;
+import com.btaka.constant.Social;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.jwt.JwtService;
 import com.btaka.oauth.service.AbstractOauthSnsService;
+import org.apache.http.auth.AUTH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.json.GsonJsonParser;
@@ -56,18 +59,18 @@ public class GoogleOauthSnsService extends AbstractOauthSnsService {
     @Override
     protected String getTokenParamMap(String code, String state, String grantType) {
         Map<String, String> paramMap = new HashMap<>();
-        paramMap.put("grant_type", Objects.isNull(grantType) ? "authorization_code": grantType);
-        paramMap.put("client_id", getClientId());
-        paramMap.put("client_secret", getClientSecret());
-        paramMap.put("code", code);
-        if (!Objects.isNull(state)) paramMap.put("state", state);
-        paramMap.put("redirect_uri", getRedirectUri());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_GRANT_TYPE.getKey(), Objects.isNull(grantType) ? "authorization_code": grantType);
+        paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_ID.getKey(), getClientId());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_SECRET.getKey(), getClientSecret());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_AUTHORIZATION_CODE.getKey(), code);
+        if (!Objects.isNull(state)) paramMap.put(AuthParamConst.PARAM_OAUTH_STATE.getKey(), state);
+        paramMap.put(AuthParamConst.PARAM_OAUTH_REDIRECT_URL.getKey(), getRedirectUri());
         return getTokenParamStr(paramMap);
     }
 
     @Override
     public String getSite() {
-        return "google";
+        return Social.GOOGLE.getName();
     }
 
     @Override

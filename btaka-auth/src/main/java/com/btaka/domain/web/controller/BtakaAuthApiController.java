@@ -57,7 +57,7 @@ public class BtakaAuthApiController {
             @RequestHeader(value = "Authorization", required = false) String token
     ) {
         return loginService.isLogin(sessionId, token)
-                .map(responseDto -> ResponseEntity.ok(responseDto))
+                .map(ResponseEntity::ok)
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
 }

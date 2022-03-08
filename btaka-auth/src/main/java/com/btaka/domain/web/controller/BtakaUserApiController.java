@@ -4,6 +4,7 @@ import com.btaka.board.common.dto.ResponseDTO;
 import com.btaka.board.common.dto.User;
 import com.btaka.common.exception.BtakaException;
 import com.btaka.constant.AuthErrorCode;
+import com.btaka.constant.UserParamConst;
 import com.btaka.domain.service.UserService;
 import com.btaka.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +30,10 @@ public class BtakaUserApiController {
     public Mono<ResponseEntity<ResponseDTO>> get(@PathVariable(name = "oid") String oid, ServerWebExchange webExchange) {
         return  userService.findByOid(oid)
                 .publishOn(Schedulers.single())
-                .map(user -> {
-                    return ResponseEntity.ok(
-                                    ResponseDTO.builder()
-                                            .set("userinfo", user)
-                                            .build());
-                })
+                .map(user -> ResponseEntity.ok(
+                                ResponseDTO.builder()
+                                        .set(UserParamConst.PARAM_USER_INFO.getKey(), user)
+                                        .build()))
                 /*
                 .map(user -> ResponseEntity.ok(
                         ResponseDTO.builder()
@@ -75,7 +74,7 @@ public class BtakaUserApiController {
                 .publishOn(Schedulers.single())
                 .map(userInfo -> ResponseEntity.ok(
                         ResponseDTO.builder()
-                                .set("userinfo", userInfo)
+                                .set(UserParamConst.PARAM_USER_INFO.getKey(), userInfo)
                                 .build())
                 );
     }
@@ -86,7 +85,7 @@ public class BtakaUserApiController {
                 .publishOn(Schedulers.single())
                 .map(userInfo -> ResponseEntity.ok(
                         ResponseDTO.builder()
-                                .set("userinfo", userInfo)
+                                .set(UserParamConst.PARAM_USER_INFO.getKey(), userInfo)
                                 .build())
                 );
     }

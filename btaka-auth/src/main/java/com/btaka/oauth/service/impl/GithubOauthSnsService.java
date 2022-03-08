@@ -3,6 +3,7 @@ package com.btaka.oauth.service.impl;
 import com.btaka.board.common.dto.SnsUser;
 import com.btaka.common.exception.BtakaException;
 import com.btaka.config.OauthConfig;
+import com.btaka.constant.AuthParamConst;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.oauth.service.AbstractOauthSnsService;
@@ -48,10 +49,10 @@ public class GithubOauthSnsService extends AbstractOauthSnsService {
 
     protected String getTokenParamMap(String code, String state, String grantType) {
         Map<String, String> paramMap = new HashMap<>();
-        paramMap.put("client_id", getClientId());
-        paramMap.put("client_secret", getClientSecret());
-        paramMap.put("code", code);
-        paramMap.put("redirect_uri", getRedirectUri());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_ID.getKey(), getClientId());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_SECRET.getKey(), getClientSecret());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_AUTHORIZATION_CODE.getKey(), code);
+        paramMap.put(AuthParamConst.PARAM_OAUTH_REDIRECT_URL.getKey(), getRedirectUri());
         return getTokenParamStr(paramMap);
     }
 

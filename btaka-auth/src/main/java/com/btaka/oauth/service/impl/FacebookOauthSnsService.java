@@ -3,6 +3,8 @@ package com.btaka.oauth.service.impl;
 import com.btaka.board.common.dto.SnsUser;
 import com.btaka.common.exception.BtakaException;
 import com.btaka.config.OauthConfig;
+import com.btaka.constant.AuthParamConst;
+import com.btaka.constant.Social;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.oauth.service.AbstractOauthSnsService;
@@ -15,6 +17,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class FacebookOauthSnsService extends AbstractOauthSnsService {
 
@@ -36,11 +39,11 @@ public class FacebookOauthSnsService extends AbstractOauthSnsService {
 
     protected String getTokenParamMap(String code, String state, String grantType) {
         Map<String, String> paramMap = new HashMap<>();
-        paramMap.put("grant_type", "code");
-        paramMap.put("client_id", getClientId());
-        paramMap.put("client_secret", getClientSecret());
-        paramMap.put("code", code);
-        paramMap.put("redirect_uri", getRedirectUri());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_GRANT_TYPE.getKey(), "code");
+        paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_ID.getKey(), getClientId());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_SECRET.getKey(), getClientSecret());
+        paramMap.put(AuthParamConst.PARAM_OAUTH_AUTHORIZATION_CODE.getKey(), code);
+        paramMap.put(AuthParamConst.PARAM_OAUTH_REDIRECT_URL.getKey(), getRedirectUri());
         return getTokenParamStr(paramMap);
     }
 
@@ -66,7 +69,7 @@ public class FacebookOauthSnsService extends AbstractOauthSnsService {
 
     @Override
     public String getSite() {
-        return "facebook";
+        return Social.FACEBOOK.getName();
     }
 
     @Override
