@@ -29,11 +29,12 @@ public class BtakaUserApiController {
     public Mono<ResponseEntity<ResponseDTO>> get(@PathVariable(name = "oid") String oid, ServerWebExchange webExchange) {
         return  userService.findByOid(oid)
                 .publishOn(Schedulers.single())
-                .map(user -> ResponseEntity.ok(
-                        ResponseDTO.builder()
-                                .set("userinfo", user)
-                                .build())
-                )
+                .map(user -> {
+                    return ResponseEntity.ok(
+                                    ResponseDTO.builder()
+                                            .set("userinfo", user)
+                                            .build());
+                })
                 /*
                 .map(user -> ResponseEntity.ok(
                         ResponseDTO.builder()

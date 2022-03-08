@@ -154,7 +154,10 @@ public class DefaultLoginService implements LoginService {
                     return !Objects.isNull(authCacheDTO) && !Objects.isNull(authCacheDTO.getSid());
                 })
                 .flatMap(authCacheDTO -> Mono.just(ResponseDTO.builder().set("userId", authCacheDTO.getAuthInfo().getUserId()).set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build()))
-                .switchIfEmpty(Mono.just(ResponseDTO.builder().success(false).build()));
+                .switchIfEmpty(Mono.just(ResponseDTO.builder().success(false).build()))
+                .onErrorResume(throwable ->
+                        Mono.error(new BtakaException(HttpStatus.INTERNAL_SERVER_ERROR, throwable))
+                );
     }
 
     @Override
@@ -165,6 +168,9 @@ public class DefaultLoginService implements LoginService {
                         authCacheService.isTokenAvailable(accessToken)
                                 .filter(dto -> !Objects.isNull(dto))
                                 .flatMap(authCacheDTO -> Mono.just(ResponseDTO.builder().set("userId", authCacheDTO.getAuthInfo().getUserId()).set("accessToken", authCacheDTO.getAuthInfo().getAccessToken()).build()))
+                    )
+                    .onErrorResume(throwable ->
+                            Mono.error(new BtakaException(HttpStatus.INTERNAL_SERVER_ERROR, throwable))
                     );
         }
         return isLogin(psid);
@@ -175,9 +181,13 @@ public class DefaultLoginService implements LoginService {
         return authCacheService.expireToken(psid)
                 .flatMap(isSuccess -> {
                     webExchange.getResponse().getCookies().clear();
-                    webExchange.getResponse().getHeaders().clear();
+                    /*
+                    webExchange.getResponse().getHeaders().clear();*/
                     return Mono.just(ResponseDTO.builder().build());
-                });
+                })
+                .onErrorResume(throwable ->
+                        Mono.error(new BtakaException(HttpStatus.INTERNAL_SERVER_ERROR, throwable))
+                );
     }
 
 }
