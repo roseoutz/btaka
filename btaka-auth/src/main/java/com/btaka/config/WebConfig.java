@@ -17,9 +17,17 @@ public class WebConfig implements WebFluxConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "http://localhost:14000", "http://localhost:3001")
-                .allowedMethods(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.DELETE.name(), HttpMethod.PUT.name(), HttpMethod.OPTIONS.name(), HttpMethod.PATCH.name())
+                .allowedOrigins("http://localhost:3000")
+                .allowedMethods(
+                        HttpMethod.GET.name(),
+                        HttpMethod.POST.name(),
+                        HttpMethod.DELETE.name(),
+                        HttpMethod.PUT.name(),
+                        HttpMethod.OPTIONS.name(),
+                        HttpMethod.PATCH.name()
+                )
                 .allowedHeaders("*")
+                .maxAge(3600)
                 .allowCredentials(true);
     }
 

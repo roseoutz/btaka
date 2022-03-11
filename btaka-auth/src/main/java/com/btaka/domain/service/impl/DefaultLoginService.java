@@ -95,11 +95,12 @@ public class DefaultLoginService implements LoginService {
 
         if (!checkPassword(authRequestDTO.getPassword(), user.getPassword())) {
 
+            addFailCount(user);
+
             if (user.getFailCount() + 1 >= MAX_FAIL_COUNT) {
                 lockUser(user);
                 throw new BtakaException(AuthErrorCode.USER_LOCKED);
             }
-            addFailCount(user);
             throw new BtakaException(AuthErrorCode.PASSWORD_NOT_MATCH);
         }
         loginSuccess(user);
@@ -111,11 +112,11 @@ public class DefaultLoginService implements LoginService {
     }
 
     protected void lockUser(User user) {
-        userService.lockUser(user, true).subscribe();
+        userService.lockUser(user).subscribe();
     }
 
     protected void unLockUser(User user) {
-        userService.lockUser(user, false).subscribe();
+        userService.unlockUser(user).subscribe();
     }
 
     protected void addFailCount(User user) {
@@ -194,7 +195,12 @@ public class DefaultLoginService implements LoginService {
     public Mono<ResponseDTO>  logout(String psid, ServerWebExchange webExchange) {
         return authCacheService.expireToken(psid)
                 .flatMap(isSuccess -> {
-                    webExchange.getResponse().getCookies().clear();
+                    webExchange.getResponse().addCookie(
+                            ResponseCookie
+                                    .from(AuthParamConst.PARAM_AUTH_SESSION_ID.getKey(), "-")
+                                    .httpOnly(true)
+                                    .maxAge(0)
+                                    .build());
                     /*
                     webExchange.getResponse().getHeaders().clear();*/
                     return Mono.just(ResponseDTO.builder().build());

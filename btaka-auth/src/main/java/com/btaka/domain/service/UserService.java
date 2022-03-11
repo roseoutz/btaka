@@ -16,9 +16,11 @@ public interface UserService {
 
     Mono<User> updateUser(String oid, User user);
 
-    Mono<User> changePassword(String oid, User user);
+    Mono<User> changePassword(User user);
 
-    Mono<Boolean> lockUser(User user, boolean isLock);
+    Mono<Boolean> lockUser(User user);
+
+    Mono<Boolean> unlockUser(User user);
 
     Mono<Boolean> loginFail(User user);
 

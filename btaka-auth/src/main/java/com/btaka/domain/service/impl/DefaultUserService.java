@@ -124,10 +124,10 @@ public class DefaultUserService extends AbstractDataService<UserEntity, User> im
     }
 
     @Override
-    public Mono<User> changePassword(String oid, User user) {
+    public Mono<User> changePassword(User user) {
         return Mono.just(user)
                 .flatMap(input ->
-                    userRepository.findById(oid)
+                    userRepository.findById(user.getOid())
                             .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND))))
                             .flatMap(entity -> {
                                 if (Objects.isNull(user.getPassword())) {
@@ -135,17 +135,25 @@ public class DefaultUserService extends AbstractDataService<UserEntity, User> im
                                 }
                                 String encPassword =  passwordEncoder.encode(user.getPassword());
                                 entity.setPassword(encPassword);
-                                return Mono.just(toDto(entity));
+                                return userRepository.save(entity)
+                                        .map(this::toDto);
                             });
     }
 
     @Override
-    public Mono<Boolean> lockUser(User user, boolean isLock) {
+    public Mono<Boolean> lockUser(User user) {
         UserEntity entity = toEntity(user);
-        if (isLock) {
-            entity.setLockedTime(LocalDateTime.now());
-        }
-        entity.setLocked(isLock);
+        entity.setLockedTime(LocalDateTime.now());
+        entity.setLocked(true);
+        return userRepository.save(entity)
+                .then(Mono.just(true));
+    }
+
+    @Override
+    public Mono<Boolean> unlockUser(User user) {
+        UserEntity entity = toEntity(user);
+        entity.setLocked(false);
+        entity.setFailCount(0);
         return userRepository.save(entity)
                 .then(Mono.just(true));
     }

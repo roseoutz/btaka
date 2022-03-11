@@ -68,9 +68,9 @@ public class BtakaUserApiController {
          */
     }
 
-    @PatchMapping("/{oid}")
-    public Mono<ResponseEntity<ResponseDTO>> put(@PathVariable(name = "oid") String oid, @RequestBody User user) {
-        return userService.updateUser(oid, user)
+    @PostMapping
+    public Mono<ResponseEntity<ResponseDTO>> changePassword(@RequestBody User user) {
+        return userService.changePassword(user)
                 .publishOn(Schedulers.single())
                 .map(userInfo -> ResponseEntity.ok(
                         ResponseDTO.builder()
@@ -79,9 +79,9 @@ public class BtakaUserApiController {
                 );
     }
 
-    @PatchMapping("/chagne/password/{oid}")
-    public Mono<ResponseEntity<ResponseDTO>> changePassword(@PathVariable(name = "oid") String oid, @RequestBody User user) {
-        return userService.changePassword(oid, user)
+    @PutMapping("/{oid}")
+    public Mono<ResponseEntity<ResponseDTO>> put(@PathVariable(name = "oid") String oid, @RequestBody User user) {
+        return userService.updateUser(oid, user)
                 .publishOn(Schedulers.single())
                 .map(userInfo -> ResponseEntity.ok(
                         ResponseDTO.builder()
