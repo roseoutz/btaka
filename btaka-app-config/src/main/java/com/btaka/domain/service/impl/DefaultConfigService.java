@@ -32,6 +32,15 @@ public class DefaultConfigService extends AbstractDataService<ConfigEntity, Conf
     }
 
     @Override
+    public Mono<List<ConfigDTO>> getByGroup(String group) {
+        return configRepository.findByGroup(group)
+                .flatMap(entity -> Mono.just(toDto(entity)))
+                .switchIfEmpty(Mono.error(new BtakaException(ConfigErrorCode.CONFIG_GROUP_NOT_FOUND)))
+                .collectList();
+
+    }
+
+    @Override
     public Mono<List<ConfigDTO>> getAll() {
         return configRepository.findAll()
                 .flatMap(entity -> Mono.just(toDto(entity)))

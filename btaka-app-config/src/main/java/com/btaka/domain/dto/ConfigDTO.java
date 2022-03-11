@@ -19,6 +19,8 @@ public class ConfigDTO {
 
     private String key;
 
+    private String group;
+
     private String value;
 
     private String description;

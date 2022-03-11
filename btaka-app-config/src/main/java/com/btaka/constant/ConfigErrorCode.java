@@ -5,7 +5,8 @@ import com.btaka.board.common.constants.ErrorCode;
 import java.util.Arrays;
 
 public enum ConfigErrorCode implements ErrorCode {
-    CONFIG_KEY_NOT_FOUND("error.config.key.not.found")
+    CONFIG_KEY_NOT_FOUND("error.config.key.not.found"),
+    CONFIG_GROUP_NOT_FOUND("error.config.group.not.found")
     ;
     private ConfigErrorCode(String msgCode) {
         this.msgCode = msgCode;

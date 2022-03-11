@@ -77,7 +77,11 @@ project(':btaka-web-common') {
     }
 }
 
-
+project(':btaka-config-common') {
+    dependencies {
+        implementation project(path: ':btaka-web-common')
+    }
+}
 
 project(':btaka-board-common') {
     dependencies {

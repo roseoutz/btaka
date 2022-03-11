@@ -24,6 +24,9 @@ public class ConfigEntity {
     private String key;
 
     @NonNull
+    private String group;
+
+    @NonNull
     private String value;
 
     private String description;
