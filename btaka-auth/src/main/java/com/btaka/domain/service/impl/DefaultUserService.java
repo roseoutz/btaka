@@ -109,6 +109,14 @@ public class DefaultUserService extends AbstractDataService<UserEntity, User> im
                                     userEntity.setPostNum(inputUser.getPostNum());
                                 }
 
+                                if (!inputUser.getGender().equals(userEntity.getGender())) {
+                                    userEntity.setGender(inputUser.getGender());
+                                }
+
+                                if (!inputUser.getUsername().equals(userEntity.getUsername())) {
+                                    userEntity.setUsername(inputUser.getUsername());
+                                }
+
                                 return userRepository.save(userEntity);
                             })
                             .flatMap(userEntity -> Mono.just(toDto(userEntity)))

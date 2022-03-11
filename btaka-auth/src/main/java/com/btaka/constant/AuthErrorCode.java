@@ -10,7 +10,8 @@ public enum AuthErrorCode implements ErrorCode {
     PASSWORD_IS_EMPTY("password.is.empty"),
     PASSWORD_NOT_MATCH("password.not.match"),
     NOT_REGISTER_OAUTH_USER("user.not.register.oauth"),
-    ALREADY_REGISTER_USER("already.register.user")
+    ALREADY_REGISTER_USER("already.register.user"),
+    NOT_LOGIN("not.login")
     ;
 
     private AuthErrorCode(String msgCode) {

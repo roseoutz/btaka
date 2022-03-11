@@ -54,17 +54,18 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                         Map.Entry::getValue
                 ));
     }
-    protected String getTokenParamMap(String code, String state) {
-        return getTokenParamMap(code, state, "authorization_code");
+
+    protected String getTokenParam(String code, String state, String redirectUri) {
+        return getTokenParam(code, state, redirectUri, "authorization_code");
     }
 
-    protected String getTokenParamMap(String code, String state, String grantType) {
+    protected String getTokenParam(String code, String state, String redirectUri, String grantType) {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put(AuthParamConst.PARAM_OAUTH_GRANT_TYPE.getKey(), Objects.isNull(grantType) ? "authorization_code": grantType);
         paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_ID.getKey(), getClientId());
         paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_SECRET.getKey(), getClientSecret());
         paramMap.put(AuthParamConst.PARAM_OAUTH_AUTHORIZATION_CODE.getKey(), code);
-        paramMap.put(AuthParamConst.PARAM_OAUTH_REDIRECT_URL.getKey(), getRedirectUri());
+        if (!Objects.isNull(redirectUri)) paramMap.put(AuthParamConst.PARAM_OAUTH_REDIRECT_URI.getKey(), redirectUri);
         if (!Objects.isNull(state)) paramMap.put(AuthParamConst.PARAM_OAUTH_STATE.getKey(), state);
         // paramMap.put("redirect_uri", getRedirectUri());
         return getTokenParamStr(paramMap);
@@ -97,11 +98,16 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
         return clientSecret;
     }
 
-    protected Mono<String> getToken(String code, String state) {
+    protected Mono<String> getToken(String code, String state, String redirectUri) {
+        String getTokenParam = getTokenParam(code, state, redirectUri);
+        return getAccessToken(code, state, getTokenParam);
+    }
+
+    protected Mono<String> getAccessToken(String code, String state, String paramStr) {
         return getWebClient(tokenUrl)
                 .post()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .bodyValue(getTokenParamMap(code, state))
+                .bodyValue(paramStr)
                 .retrieve()
                 .bodyToMono(String.class)
                 .doOnNext(respone -> logger.debug("[BTAKA Oauth Token Response]" + respone))
@@ -128,6 +134,14 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
         return redirectUri + "/" + getSite();
     }
 
+    protected String getAuthRedirectUrl() {
+        return redirectUri + "/" + getSite();
+    }
+
+    protected String getRegisterRedirectUrl() {
+        return redirectUri + "/register/" + getSite();
+    }
+
     protected WebClient getWebClient(String url) {
         return WebClient.create(url);
     }
@@ -136,8 +150,9 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
 
     protected abstract Map<String, Object> convertTokenToMap(String token);
 
-    protected Mono<SnsUser> getUserInfo(String code, String state) {
-        return getToken(code, state)
+
+    protected Mono<SnsUser> getUserInfo(String accessToken) {
+        return Mono.just(accessToken)
                 .flatMap(token -> {
                     logger.debug(getSite() + " from get Token == " + token);
                     Map<String, Object> tokenInfoMap = convertTokenToMap(token);
@@ -145,11 +160,14 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                             .map(map -> convertUserInfo(token, map));
                 })
                 .doOnError(BtakaException::new);
-
     }
 
     @Override
     public Mono<SnsUser> auth(String code, String state, String nonce) {
+        return getToken(code, state, getAuthRedirectUrl())
+                .flatMap(this::getUserInfo)
+                .doOnError(BtakaException::new);
+        /*
         return getUserInfo(code, state)
                 .flatMap(snsUser ->
                     userOauthService.get(getSite(), snsUser.getId())
@@ -157,11 +175,12 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                             .then(Mono.just(snsUser))
                 )
                 .doOnError(BtakaException::new);
+         */
     }
 
     @Override
-    public Mono<SnsUser> userInfo(String authCode, String state, String nonce) {
-        return getUserInfo(authCode, state);
+    public Mono<SnsUser> userInfo(String accessToken) {
+        return getUserInfo(accessToken);
     }
 
     /*
@@ -169,6 +188,26 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
      */
     @Override
     public Mono<SnsUser> register(String userOid, String code, String state, String nonce) {
+        return getToken(code, state, getRegisterRedirectUrl())
+                .flatMap(token -> {
+                    Map<String, Object> tokenInfoMap = convertTokenToMap(token);
+                    return getUserInfo(tokenInfoMap)
+                            .map(map -> convertUserInfo(token, map));
+                })
+                .flatMap(snsUser -> userOauthService.get(this.getSite(), userOid)
+                        .filter(userOauthDTO -> !Objects.isNull(userOauthDTO.getOauthId()))
+                        .map(userOauthDTO -> snsUser)
+                        .switchIfEmpty(
+                                userService.findByOid(userOid)
+                                        .flatMap(user -> userOauthService.save(UserOauthDTO.builder()
+                                                .userOid(userOid)
+                                                .oauthId(snsUser.getId())
+                                                .oauthSite(getSite())
+                                                .email(snsUser.getEmail())
+                                                .build()))
+                                        .then(Mono.just(snsUser))
+                        ));
+        /*
         return userInfo(code, state, nonce)
                 .flatMap(snsUser ->
                         userOauthService.get(this.getSite(), userOid)
@@ -186,5 +225,7 @@ public abstract class AbstractOauthSnsService implements OauthSnsService {
                             )
                 )
                 .doOnError(BtakaException::new);
+
+         */
     }
 }

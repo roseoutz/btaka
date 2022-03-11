@@ -5,6 +5,8 @@ import com.btaka.cache.dto.AuthInfo;
 import com.btaka.cache.entity.AuthCacheEntity;
 import com.btaka.cache.redis.service.AbstractRedisCacheService;
 import com.btaka.cache.repo.BtakaAuthRedisCacheRepository;
+import com.btaka.common.exception.BtakaException;
+import com.btaka.constant.AuthErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +36,9 @@ public class BtakaAuthRedisCacheService extends AbstractRedisCacheService<String
         return authCacheEntity.map(cacheEntity -> Mono.just(cacheEntity)
                         .filter(entity -> LocalDateTime.now().isBefore(entity.getAuthInfo().getExpiredAt()))
                         .map(this::toDto)
+                        .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.NOT_LOGIN)))
                 )
-                .orElseGet(() -> Mono.just(new AuthCacheDTO()));
+                .orElse(null);
     }
 
     @Transactional

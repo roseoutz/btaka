@@ -154,11 +154,7 @@ public class DefaultLoginService implements LoginService {
     @Override
     public Mono<ResponseDTO> isLogin(String psid) {
         if (Objects.isNull(psid)) {
-            return Mono.just(ResponseDTO
-                    .builder()
-                    .success(true)
-                    .set(AuthParamConst.PARAM_AUTH_IS_LOGIN.getKey(), false)
-                    .build());
+            return Mono.error(new BtakaException(AuthErrorCode.NOT_LOGIN));
         }
         return authCacheService.isLogin(psid)
                 .filter(authCacheDTO -> !Objects.isNull(authCacheDTO) && !Objects.isNull(authCacheDTO.getSid()))
@@ -178,17 +174,17 @@ public class DefaultLoginService implements LoginService {
         if (!Objects.isNull(accessToken) && jwtService.isValidToken(accessToken)) {
             return Mono.just(accessToken)
                     .flatMap(token ->
-                        authCacheService.isTokenAvailable(accessToken)
-                                .filter(dto -> !Objects.isNull(dto))
+                        authCacheService.isTokenAvailable(token)
                                 .flatMap(authCacheDTO -> Mono.just(ResponseDTO
                                         .builder()
                                         .set(UserParamConst.PARAM_USER_ID.getKey(), authCacheDTO.getAuthInfo().getUserId())
                                         .set(AuthParamConst.PARAM_AUTH_ACCESS_TOKEN.getKey(), authCacheDTO.getAuthInfo().getAccessToken())
                                         .build())
                                 )
+                                .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.NOT_LOGIN)))
                     )
                     .onErrorResume(throwable ->
-                            Mono.error(new BtakaException(HttpStatus.INTERNAL_SERVER_ERROR, throwable))
+                            Mono.error(new BtakaException(throwable))
                     );
         }
         return isLogin(psid);

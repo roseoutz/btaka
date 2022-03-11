@@ -18,4 +18,6 @@ public class AuthInfo {
 
     private LocalDateTime expiredAt;
 
+    private LocalDateTime maxValidTokenTime;
+
 }

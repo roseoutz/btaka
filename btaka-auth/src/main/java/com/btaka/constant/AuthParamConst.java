@@ -12,6 +12,7 @@ public enum AuthParamConst {
     PARAM_OAUTH_RESPONSE_TYPE("response_type"),
     PARAM_OAUTH_GRANT_TYPE("grant_type"),
     PARAM_OAUTH_STATE("state"),
+    PARAM_OAUTH_REDIRECT_URI("redirect_uri"),
     PARAM_OAUTH_REDIRECT_URL("redirect_url"),
     PARAM_OAUTH_SCOPE("scope"),
     PARAM_OAUTH_AUTHORIZATION_CODE("code"),

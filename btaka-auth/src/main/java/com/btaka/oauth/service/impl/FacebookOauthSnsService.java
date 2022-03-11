@@ -34,7 +34,7 @@ public class FacebookOauthSnsService extends AbstractOauthSnsService {
     }
 
     private String getTokenUrl(String code, String state) {
-        return tokenUrl + "?" + getTokenParamMap(code, state);
+        return tokenUrl + "?" + getTokenParam(code, state, "");
     }
 
     protected String getTokenParamMap(String code, String state, String grantType) {
@@ -48,7 +48,7 @@ public class FacebookOauthSnsService extends AbstractOauthSnsService {
     }
 
     @Override
-    protected Mono<String> getToken(String code, String state) {
+    protected Mono<String> getAccessToken(String code, String state, String paramStr) {
         return getWebClient(getTokenUrl(code, state))
                 .get()
                 .retrieve()

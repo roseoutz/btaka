@@ -4,6 +4,7 @@ import com.btaka.board.common.dto.SnsUser;
 import com.btaka.common.exception.BtakaException;
 import com.btaka.config.OauthConfig;
 import com.btaka.constant.AuthParamConst;
+import com.btaka.constant.Social;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.oauth.service.AbstractOauthSnsService;
@@ -44,17 +45,9 @@ public class GithubOauthSnsService extends AbstractOauthSnsService {
 
     @Override
     public String getSite() {
-        return "github";
+        return Social.GITHUB.getName();
     }
 
-    protected String getTokenParamMap(String code, String state, String grantType) {
-        Map<String, String> paramMap = new HashMap<>();
-        paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_ID.getKey(), getClientId());
-        paramMap.put(AuthParamConst.PARAM_OAUTH_CLIENT_SECRET.getKey(), getClientSecret());
-        paramMap.put(AuthParamConst.PARAM_OAUTH_AUTHORIZATION_CODE.getKey(), code);
-        paramMap.put(AuthParamConst.PARAM_OAUTH_REDIRECT_URL.getKey(), getRedirectUri());
-        return getTokenParamStr(paramMap);
-    }
 
     @Override
     protected SnsUser convertUserInfo(String token, Map<String, Object> userInfoMap) {
@@ -82,14 +75,4 @@ public class GithubOauthSnsService extends AbstractOauthSnsService {
         return tokenParamMap;
     }
 
-    @Override
-    protected Mono<Map> getUserInfo(Map<String, Object> tokenInfoMap) {
-        return getWebClient(userInfoUrl)
-                .post()
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", tokenInfoMap.get("token_type") + " " + tokenInfoMap.get("access_token"))
-                .retrieve()
-                .bodyToMono(Map.class)
-                .doOnError(BtakaException::new);
-    }
 }

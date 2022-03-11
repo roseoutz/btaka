@@ -13,7 +13,7 @@ public interface OauthSnsService {
 
     Mono<SnsUser> auth(String code, String state, String nonce);
 
-    Mono<SnsUser> userInfo(String authCode, String state, String nonce);
+    Mono<SnsUser> userInfo(String token);
 
     Mono<SnsUser> register(String userOid, String code, String state, String nonce);
 }
