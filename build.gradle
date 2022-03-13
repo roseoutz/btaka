@@ -79,6 +79,7 @@ project(':btaka-web-common') {
 
 project(':btaka-config-common') {
     dependencies {
+        implementation project(path: ':btaka-common')
         implementation project(path: ':btaka-web-common')
     }
 }
@@ -199,6 +200,7 @@ project(':btaka-app-config') {
         implementation project(path: ':btaka-common')
         implementation project(path: ':btaka-jwt')
         implementation project(path: ':btaka-web-common')
+        implementation project(path: ':btaka-config-common')
         implementation project(path: ':btaka-cache-redis')
         implementation 'org.springdoc:springdoc-openapi-webmvc-core:1.6.6'
         implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.6.6'

@@ -2,8 +2,8 @@ package com.btaka.domain.service.impl;
 
 import com.btaka.common.exception.BtakaException;
 import com.btaka.common.service.AbstractDataService;
+import com.btaka.config.dto.ConfigDTO;
 import com.btaka.constant.ConfigErrorCode;
-import com.btaka.domain.dto.ConfigDTO;
 import com.btaka.domain.entity.ConfigEntity;
 import com.btaka.domain.repo.ConfigRepository;
 import com.btaka.domain.service.ConfigService;
@@ -47,4 +47,19 @@ public class DefaultConfigService extends AbstractDataService<ConfigEntity, Conf
                 .switchIfEmpty(Flux.error(new BtakaException(ConfigErrorCode.CONFIG_KEY_NOT_FOUND)))
                 .collectList();
     }
+
+    @Override
+    public Mono<ConfigDTO> save(ConfigDTO configDTO) {
+        return Mono.just(toEntity(configDTO))
+                .flatMap(entity ->
+                        configRepository.save(entity)
+                                .map(savedEntity -> toDto(savedEntity))
+                );
+    }
+
+    @Override
+    public Mono<ConfigDTO> update(ConfigDTO configDTO) {
+        return this.save(configDTO);
+    }
+
 }

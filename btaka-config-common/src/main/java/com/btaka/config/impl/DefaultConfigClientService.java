@@ -2,45 +2,37 @@ package com.btaka.config.impl;
 
 import com.btaka.common.exception.BtakaException;
 import com.btaka.config.ConfigClientService;
+import com.btaka.config.dto.ConfigResponseDTO;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 
 public class DefaultConfigClientService implements ConfigClientService {
 
-    private final String GET_CONFIG_URL = "/group/";
-    private final String GET_GROUP_CONFIG_URL = "/groups/";
+    private final String oneConfigGetUrl;
+    private final String groupConfigGetUrl;
 
-    private final String configServerUrl;
-
-    public DefaultConfigClientService(String configServerUrl) {
-        this.configServerUrl = configServerUrl;
-    }
-
-    protected WebClient getConfigClient(String key) {
-        return WebClient.create(configServerUrl + GET_CONFIG_URL + key);
-    }
-
-    protected WebClient getGroupConfigClient(String group) {
-        return WebClient.create(configServerUrl + GET_GROUP_CONFIG_URL + group);
+    public DefaultConfigClientService( String oneConfigGetUrl, String groupConfigGetUrl) {
+        this.oneConfigGetUrl = oneConfigGetUrl;
+        this.groupConfigGetUrl = groupConfigGetUrl;
     }
 
     @Override
-    public void getConfig(String key) {
-        getConfigClient(key)
+    public Mono<ConfigResponseDTO> getConfig(String key) {
+        return WebClient.create(oneConfigGetUrl + "/" + key)
                 .get()
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(ConfigResponseDTO.class)
                 .doOnError(BtakaException::new);
     }
 
     @Override
-    public void getConfigs(String group) {
-        getGroupConfigClient(group)
+    public Mono<ConfigResponseDTO> getConfigs(String group) {
+        return WebClient.create(groupConfigGetUrl + "/" + group)
                 .get()
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(ConfigResponseDTO.class)
                 .doOnError(BtakaException::new);
-
     }
 
 }

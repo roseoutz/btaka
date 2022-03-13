@@ -1,6 +1,6 @@
 package com.btaka.domain.service;
 
-import com.btaka.domain.dto.ConfigDTO;
+import com.btaka.config.dto.ConfigDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -12,4 +12,8 @@ public interface ConfigService {
     Mono<List<ConfigDTO>> getByGroup(String group);
 
     Mono<List<ConfigDTO>> getAll();
+
+    Mono<ConfigDTO> save(ConfigDTO configDTO);
+
+    Mono<ConfigDTO> update(ConfigDTO configDTO);
 }

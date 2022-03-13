@@ -1,10 +1,20 @@
-package com.btaka.domain.dto;
+package com.btaka.config.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConfigResponseDTO {
+@ToString
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ConfigResponseDTO implements Serializable {
 
     private boolean success;
     private String error;
