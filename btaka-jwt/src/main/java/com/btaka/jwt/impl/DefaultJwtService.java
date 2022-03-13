@@ -19,14 +19,16 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Service("defaultJwtService")
 public class DefaultJwtService implements JwtService {
 
-    @Value("${btaka.value.jwt.secret}")
-    private String secret;
+    private final String secret;
 
-    @Value("${btaka.value.jwt.tokenMaxValidTime}")
-    private String tokenMaxValidTime;
+    private final String tokenMaxValidTime;
+
+    public DefaultJwtService(String secret, String tokenMaxValidTime) {
+        this.secret = secret;
+        this.tokenMaxValidTime = tokenMaxValidTime;
+    }
 
     private Key key;
 

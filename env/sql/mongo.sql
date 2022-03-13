@@ -55,3 +55,18 @@ db.btaka_user_oauth.insertMany([
         "userOid": "62136192e4f442352558e735"
     }
 ])
+
+db.btaka_config.insertMany([
+{
+  "key": "auth.token.secret",
+  "value": "btaka-jwt-service-hahahahahahahaha",
+  "group": "auth.token",
+  "description": "Token Secret 값"
+},
+{
+  "key": "auth.token.max.valid.time",
+  "value": "3600",
+  "group": "auth.token",
+  "description": "Token 최대 유효 시간"
+}]
+)

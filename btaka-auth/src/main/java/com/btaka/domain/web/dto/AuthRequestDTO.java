@@ -2,7 +2,6 @@ package com.btaka.domain.web.dto;
 
 import lombok.*;
 
-import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
 @Getter

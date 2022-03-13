@@ -5,16 +5,16 @@ import com.btaka.board.common.dto.User;
 import com.btaka.cache.dto.AuthInfo;
 import com.btaka.cache.service.AuthCacheService;
 import com.btaka.common.exception.BtakaException;
-import com.btaka.common.service.AbstractDataService;
+import com.btaka.common.util.CookieUtil;
 import com.btaka.constant.AuthErrorCode;
 import com.btaka.constant.AuthParamConst;
 import com.btaka.constant.UserParamConst;
-import com.btaka.domain.entity.UserEntity;
 import com.btaka.domain.service.UserOauthService;
 import com.btaka.domain.service.UserService;
 import com.btaka.domain.web.dto.AuthRequestDTO;
 import com.btaka.jwt.JwtService;
 import com.btaka.domain.service.LoginService;
+import com.btaka.jwt.dto.JwtDTO;
 import com.mongodb.internal.HexUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,25 +45,24 @@ public class DefaultLoginService implements LoginService {
     private final UserOauthService userOauthService;
     private final AuthCacheService authCacheService;
 
+    private AuthInfo convertJwtToAuthInfo(JwtDTO jwtDTO) {
+        return AuthInfo.builder()
+                .userId(jwtDTO.getUserId())
+                .loginAt(jwtDTO.getLoginAt())
+                .expiredAt(jwtDTO.getExpiredAt())
+                .accessToken(jwtDTO.getAccessToken())
+                .build();
+    }
 
-    protected Mono<ResponseDTO> processLogin(User user, ServerWebExchange webExchange) {
+    private Mono<ResponseDTO> processLogin(User user, ServerWebExchange webExchange) {
         return Mono.just(user)
-                .map(dto -> jwtService.generateToken(user))
-                .flatMap(jwtDTO -> {
+                .flatMap(dto -> {
+                    JwtDTO jwtDTO = jwtService.generateToken(user);
                     String sid = webExchange.getRequest().getId();
                     String encodeSid = HexUtils.toHex(sid.getBytes(StandardCharsets.UTF_8));
-                    AuthInfo authInfo = AuthInfo.builder()
-                            .userId(jwtDTO.getUserId())
-                            .loginAt(jwtDTO.getLoginAt())
-                            .expiredAt(jwtDTO.getExpiredAt())
-                            .accessToken(jwtDTO.getAccessToken())
-                            .build();
-                    return authCacheService.saveAuthInfo(encodeSid, authInfo)
-                            .doOnSuccess(cacheDTO -> webExchange.getResponse().addCookie(
-                                    ResponseCookie
-                                            .from(AuthParamConst.PARAM_AUTH_SESSION_ID.getKey(), encodeSid)
-                                            .httpOnly(true)
-                                            .build()))
+                    CookieUtil.saveSessionCookie(webExchange.getResponse(), AuthParamConst.PARAM_AUTH_SESSION_ID.getKey(), encodeSid);
+
+                    return authCacheService.saveAuthInfo(encodeSid, convertJwtToAuthInfo(jwtDTO))
                             .then(Mono.just(ResponseDTO
                                     .builder()
                                     .set(UserParamConst.PARAM_USER_OBJECT_ID.getKey(), user.getOid())
@@ -73,14 +72,6 @@ public class DefaultLoginService implements LoginService {
                 });
     }
 
-    /*protected Mono<ResponseDTO> loginFail(User user) {
-        return Mono.just(user)
-                .flatMap(dto -> {
-                    int failCount = user.getFailCount();
-
-                })
-    }
-*/
     protected boolean validateUser(AuthRequestDTO authRequestDTO, User user) {
 
         if (user.isLocked()) {
