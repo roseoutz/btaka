@@ -11,6 +11,7 @@ public enum AuthErrorCode implements ErrorCode {
     PASSWORD_NOT_MATCH("password.not.match"),
     PASSWORD_ORIGIN_NOT_MATCH("password.origin.not.match"),
     PASSWORD_CHECK_NOT_MATCH("password.check.not.match"),
+    PASSWORD_OLD_NEW_SAME("password.old.new.same"),
     NOT_REGISTER_OAUTH_USER("user.not.register.oauth"),
     ALREADY_REGISTER_USER("already.register.user"),
     NOT_LOGIN("not.login"),

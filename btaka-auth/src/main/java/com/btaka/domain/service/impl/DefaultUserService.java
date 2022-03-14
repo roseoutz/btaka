@@ -135,8 +135,12 @@ public class DefaultUserService extends AbstractDataService<UserEntity, User> im
                                     return Mono.error(new BtakaException(AuthErrorCode.PASSWORD_IS_EMPTY));
                                 }
 
-                                if (!passwordEncoder.matches(dto.getPassword(), entity.getPassword())) {
+                                if (!passwordEncoder.matches(dto.getOriginalPassword(), entity.getPassword())) {
                                     return Mono.error(new BtakaException(AuthErrorCode.PASSWORD_ORIGIN_NOT_MATCH));
+                                }
+
+                                if (!dto.getPassword().equals(dto.getOriginalPassword())) {
+                                    return Mono.error(new BtakaException(AuthErrorCode.PASSWORD_OLD_NEW_SAME));
                                 }
 
                                 if (!dto.getPassword().equals(dto.getPasswordCheck())) {
