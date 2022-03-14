@@ -46,7 +46,7 @@ btaka:
   value:
     jwt:
       secret: btaka-jwt-service-hahahahahahahaha
-      tokenMaxValidTime: 60
+      tokenMaxValidTime: 300
 
 eureka:
   client:
