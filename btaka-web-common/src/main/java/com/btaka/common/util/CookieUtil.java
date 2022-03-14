@@ -8,7 +8,13 @@ public class CookieUtil {
     private CookieUtil() {}
 
     public static void saveSessionCookie(ServerHttpResponse serverResponse, String key, String value) {
-        saveCookie(serverResponse, key, value, 0);
+        serverResponse.addCookie
+                (
+                        ResponseCookie
+                                .from(key, value)
+                                .httpOnly(true)
+                                .build()
+                );
     }
 
     public static void saveCookie(ServerHttpResponse serverResponse, String key, String value, long duration) {
