@@ -36,7 +36,7 @@ public class BtakaAuthRedisCacheService extends AbstractRedisCacheService<String
         return authCacheEntity.map(cacheEntity -> Mono.just(cacheEntity)
                         .filter(entity -> LocalDateTime.now().isBefore(entity.getAuthInfo().getExpiredAt()))
                         .map(this::toDto)
-                        .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.NOT_LOGIN)))
+                        .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.TOKEN_EXPIRED)))
                 )
                 .orElse(null);
     }

@@ -6,6 +6,7 @@ import com.btaka.common.exception.BtakaException;
 import com.btaka.constant.AuthErrorCode;
 import com.btaka.constant.UserParamConst;
 import com.btaka.domain.service.UserService;
+import com.btaka.domain.web.dto.PasswordChangeRequestDTO;
 import com.btaka.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,28 +27,14 @@ public class BtakaUserApiController {
      * Todo: Security를 통하여 header에 jwt Token을 검증한다..
      *  현재 AccessToken 이 없을 시 oid로 정보 주게 처리해놨는데 향후 accessToken을 이용하여 가져올수 있게 수정
      */
+
     @GetMapping("/{oid}")
     public Mono<ResponseEntity<ResponseDTO>> get(@PathVariable(name = "oid") String oid, ServerWebExchange webExchange) {
         return  userService.findByOid(oid)
-                .publishOn(Schedulers.single())
                 .map(user -> ResponseEntity.ok(
                                 ResponseDTO.builder()
                                         .set(UserParamConst.PARAM_USER_INFO.getKey(), user)
                                         .build()))
-                /*
-                .map(user -> ResponseEntity.ok(
-                        ResponseDTO.builder()
-                                .set("oid", user.getOid())
-                                .set("userName", user.getUsername())
-                                .set("email", user.getEmail())
-                                .set("mobile", user.getMobile())
-                                .set("birthdate", user.getBirthdate())
-                                .set("gender", user.getGender())
-                                .set("address", user.getAddress())
-                                .set("addressDetail", user.getAddressDetail())
-                                .set("postNum", user.getPostNum())
-                                .build())
-                )*/
                 .switchIfEmpty(Mono.error(new BtakaException(AuthErrorCode.USER_NOT_FOUND)));
         /*
         return Mono.just(webExchange)
@@ -69,9 +56,8 @@ public class BtakaUserApiController {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<ResponseDTO>> changePassword(@RequestBody User user) {
-        return userService.changePassword(user)
-                .publishOn(Schedulers.single())
+    public Mono<ResponseEntity<ResponseDTO>> changePassword(@RequestBody PasswordChangeRequestDTO passwordChangeRequestDTO) {
+        return userService.changePassword(passwordChangeRequestDTO)
                 .map(userInfo -> ResponseEntity.ok(
                         ResponseDTO.builder()
                                 .set(UserParamConst.PARAM_USER_INFO.getKey(), userInfo)
@@ -82,7 +68,6 @@ public class BtakaUserApiController {
     @PutMapping("/{oid}")
     public Mono<ResponseEntity<ResponseDTO>> put(@PathVariable(name = "oid") String oid, @RequestBody User user) {
         return userService.updateUser(oid, user)
-                .publishOn(Schedulers.single())
                 .map(userInfo -> ResponseEntity.ok(
                         ResponseDTO.builder()
                                 .set(UserParamConst.PARAM_USER_INFO.getKey(), userInfo)

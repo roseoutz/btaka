@@ -11,9 +11,9 @@ public interface LoginService {
 
     Mono<ResponseDTO> authByOauth(ServerWebExchange webExchange, AuthRequestDTO authRequestDTO);
 
-    Mono<ResponseDTO> isLogin(String psid);
+    Mono<ResponseDTO> isLogin(ServerWebExchange webExchange, String psid);
 
-    Mono<ResponseDTO> isLogin(String psid, String accessToken);
+    Mono<ResponseDTO> isLogin(ServerWebExchange webExchange, String psid, String accessToken);
 
     Mono<ResponseDTO> logout(String psid, ServerWebExchange webExchange);
 

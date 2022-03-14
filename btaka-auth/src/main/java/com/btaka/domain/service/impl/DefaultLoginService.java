@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -54,13 +55,21 @@ public class DefaultLoginService implements LoginService {
                 .build();
     }
 
+    private void saveCookie(ServerWebExchange webExchange, String sid) {
+        CookieUtil.saveSessionCookie(webExchange.getResponse(), AuthParamConst.PARAM_AUTH_SESSION_ID.getKey(), sid);
+    }
+
+    private void removeCookie(ServerWebExchange webExchange) {
+        CookieUtil.deleteCookie(webExchange.getResponse(), AuthParamConst.PARAM_AUTH_SESSION_ID.getKey());
+    }
+
     private Mono<ResponseDTO> processLogin(User user, ServerWebExchange webExchange) {
         return Mono.just(user)
                 .flatMap(dto -> {
                     JwtDTO jwtDTO = jwtService.generateToken(user);
                     String sid = webExchange.getRequest().getId();
                     String encodeSid = HexUtils.toHex(sid.getBytes(StandardCharsets.UTF_8));
-                    CookieUtil.saveSessionCookie(webExchange.getResponse(), AuthParamConst.PARAM_AUTH_SESSION_ID.getKey(), encodeSid);
+                    saveCookie(webExchange, encodeSid);
 
                     return authCacheService.saveAuthInfo(encodeSid, convertJwtToAuthInfo(jwtDTO))
                             .then(Mono.just(ResponseDTO
@@ -144,7 +153,7 @@ public class DefaultLoginService implements LoginService {
     }
 
     @Override
-    public Mono<ResponseDTO> isLogin(String psid) {
+    public Mono<ResponseDTO> isLogin(ServerWebExchange webExchange, String psid) {
         if (Objects.isNull(psid)) {
             return Mono.error(new BtakaException(AuthErrorCode.NOT_LOGIN));
         }
@@ -156,14 +165,23 @@ public class DefaultLoginService implements LoginService {
                         .set(AuthParamConst.PARAM_AUTH_ACCESS_TOKEN.getKey(), authCacheDTO.getAuthInfo().getAccessToken())
                         .build()))
                 .switchIfEmpty(Mono.just(ResponseDTO.builder().success(false).build()))
-                .onErrorResume(throwable ->
-                        Mono.error(new BtakaException(HttpStatus.INTERNAL_SERVER_ERROR, throwable))
-                );
+                .onErrorResume(throwable -> {
+                    if (throwable instanceof BtakaException) {
+                        BtakaException e = (BtakaException) throwable;
+                        if (e.getMessage().equals(AuthErrorCode.TOKEN_EXPIRED.getMsgCode())) {
+                            removeCookie(webExchange);
+                        }
+                    }
+                    return Mono.error(new BtakaException(HttpStatus.INTERNAL_SERVER_ERROR, throwable));
+                });
     }
 
     @Override
-    public Mono<ResponseDTO> isLogin(String psid, String accessToken) {
-        if (!Objects.isNull(accessToken) && jwtService.isValidToken(accessToken)) {
+    public Mono<ResponseDTO> isLogin(ServerWebExchange webExchange, String psid, String accessToken) {
+        if (!Objects.isNull(accessToken)) {
+            if (!jwtService.isValidToken(accessToken)) {
+                return Mono.error(new BtakaException(AuthErrorCode.TOKEN_EXPIRED));
+            }
             return Mono.just(accessToken)
                     .flatMap(token ->
                         authCacheService.isTokenAvailable(token)
@@ -179,21 +197,14 @@ public class DefaultLoginService implements LoginService {
                             Mono.error(new BtakaException(throwable))
                     );
         }
-        return isLogin(psid);
+        return isLogin(webExchange, psid);
     }
 
     @Override
     public Mono<ResponseDTO>  logout(String psid, ServerWebExchange webExchange) {
         return authCacheService.expireToken(psid)
                 .flatMap(isSuccess -> {
-                    webExchange.getResponse().addCookie(
-                            ResponseCookie
-                                    .from(AuthParamConst.PARAM_AUTH_SESSION_ID.getKey(), "-")
-                                    .httpOnly(true)
-                                    .maxAge(0)
-                                    .build());
-                    /*
-                    webExchange.getResponse().getHeaders().clear();*/
+                    removeCookie(webExchange);
                     return Mono.just(ResponseDTO.builder().build());
                 })
                 .onErrorResume(throwable ->

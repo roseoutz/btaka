@@ -9,9 +9,12 @@ public enum AuthErrorCode implements ErrorCode {
     USER_LOCKED("user.locked"),
     PASSWORD_IS_EMPTY("password.is.empty"),
     PASSWORD_NOT_MATCH("password.not.match"),
+    PASSWORD_ORIGIN_NOT_MATCH("password.origin.not.match"),
+    PASSWORD_CHECK_NOT_MATCH("password.check.not.match"),
     NOT_REGISTER_OAUTH_USER("user.not.register.oauth"),
     ALREADY_REGISTER_USER("already.register.user"),
-    NOT_LOGIN("not.login")
+    NOT_LOGIN("not.login"),
+    TOKEN_EXPIRED("token.expired")
     ;
 
     private AuthErrorCode(String msgCode) {

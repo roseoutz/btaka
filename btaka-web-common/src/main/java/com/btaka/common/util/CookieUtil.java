@@ -32,7 +32,7 @@ public class CookieUtil {
         serverResponse.addCookie
                 (
                         ResponseCookie
-                                .from(key, null)
+                                .from(key, "-")
                                 .maxAge(0)
                                 .httpOnly(true)
                                 .build()

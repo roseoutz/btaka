@@ -1,6 +1,8 @@
 package com.btaka.domain.web.controller;
 
 import com.btaka.board.common.dto.ResponseDTO;
+import com.btaka.common.exception.BtakaException;
+import com.btaka.constant.AuthErrorCode;
 import com.btaka.domain.web.dto.AuthRequestDTO;
 import com.btaka.domain.service.LoginService;
 import io.netty.util.internal.StringUtil;
@@ -54,9 +56,10 @@ public class BtakaAuthApiController {
     @GetMapping("/")
     public Mono<ResponseEntity<ResponseDTO>> isLogin(
             @CookieValue(value = "psid", required = false) String sessionId,
-            @RequestHeader(value = "Authorization", required = false) String token
+            @RequestHeader(value = "Authorization", required = false) String token,
+            ServerWebExchange webExchange
     ) {
-        return loginService.isLogin(sessionId, token)
+        return loginService.isLogin(webExchange, sessionId, token)
                 .map(ResponseEntity::ok)
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
